@@ -3,21 +3,43 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function StartQuizButton({ quizId }: { quizId: string }) {
+type Props = {
+  quizId: string;
+};
+
+export default function StartQuizButton({ quizId }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  async function start() {
+  async function handleStart() {
+    if (loading) return;
     setLoading(true);
+
     try {
       const res = await fetch("/api/attempts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quizId }),
       });
-      if (!res.ok) throw new Error("Failed to start attempt");
-      const data = (await res.json()) as { attempt: { id: string } };
-      router.push(`/attempt/${data.attempt.id}`);
+
+      const data = await res.json().catch(() => ({} as any));
+
+      if (!res.ok) {
+        console.error("Start quiz failed:", res.status, data);
+        alert(data?.error ?? `Start quiz failed (${res.status})`);
+        return;
+      }
+
+      const attemptId = data?.attempt?.id as string | undefined;
+      if (!attemptId) {
+        console.error("Start quiz response missing attempt.id:", data);
+        alert("Start quiz failed: missing attempt id");
+        return;
+      }
+
+      // ✅ Always go to /attempt/<attemptId> (attemptId is never stale because it's newly created)
+      router.push(`/attempt/${attemptId}`);
+      router.refresh();
     } finally {
       setLoading(false);
     }
@@ -25,7 +47,8 @@ export default function StartQuizButton({ quizId }: { quizId: string }) {
 
   return (
     <button
-      onClick={start}
+      type="button"
+      onClick={handleStart}
       disabled={loading}
       className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
     >

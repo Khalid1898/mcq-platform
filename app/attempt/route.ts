@@ -32,28 +32,15 @@ export async function POST(
 
   const questions = await getQuestionsByIds(quiz.questionIds);
 
+  // answers are stored as [{ questionId, selectedIndex }]
   const answerMap = new Map<string, number>();
   for (const a of attempt.answers) answerMap.set(a.questionId, a.selectedIndex);
-
-  // ✅ NEW: enforce "all questions answered" on server too
-  const unansweredQuestionIds = questions
-    .map((q) => q.id)
-    .filter((qid) => !answerMap.has(qid));
-
-  if (unansweredQuestionIds.length > 0) {
-    return Response.json(
-      {
-        error: "All questions must be answered before submitting",
-        meta: { unansweredQuestionIds },
-        attempt,
-      },
-      { status: 400 }
-    );
-  }
 
   let correct = 0;
   for (const q of questions) {
     const selected = answerMap.get(q.id);
+
+    // ✅ your questions use correctIndex
     if (typeof selected === "number" && selected === (q as any).correctIndex) {
       correct++;
     }
@@ -62,6 +49,7 @@ export async function POST(
   const total = questions.length;
   const score = total === 0 ? 0 : Math.round((correct / total) * 100);
 
+  // ✅ lock + persist score
   await submitAttempt(id);
   const updated = await setScore(id, score);
 
