@@ -18,6 +18,18 @@ type Attempt = {
   score?: number | null;
 };
 
+async function safeJson(res: Response): Promise<unknown> {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+function errMsg(e: unknown, fallback: string) {
+  return e instanceof Error ? e.message : fallback;
+}
+
 export default function AttemptClient({
   attemptId,
   questions,
@@ -28,7 +40,6 @@ export default function AttemptClient({
   initialAttempt: Attempt;
 }) {
   const router = useRouter();
-
   const [idx, setIdx] = useState(0);
 
   const [answers, setAnswers] = useState<Map<string, number>>(() => {
@@ -45,7 +56,6 @@ export default function AttemptClient({
   const q = questions[idx];
   const selected = answers.get(q.id);
 
-  // ✅ Save answer to backend
   async function save(questionId: string, selectedIndex: number) {
     if (saving) return;
 
@@ -59,9 +69,17 @@ export default function AttemptClient({
         body: JSON.stringify({ questionId, selectedIndex }),
       });
 
+      const data = await safeJson(res);
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({} as any));
-        throw new Error(data?.error ?? "Failed to save answer");
+        const apiErr =
+          typeof data === "object" && data !== null && "error" in data
+            ? (data as { error?: unknown }).error
+            : undefined;
+
+        throw new Error(
+          typeof apiErr === "string" ? apiErr : "Failed to save answer"
+        );
       }
 
       setAnswers((prev) => {
@@ -69,14 +87,13 @@ export default function AttemptClient({
         next.set(questionId, selectedIndex);
         return next;
       });
-    } catch (e: any) {
-      setError(e.message ?? "Save failed");
+    } catch (e: unknown) {
+      setError(errMsg(e, "Save failed"));
     } finally {
       setSaving(false);
     }
   }
 
-  // ✅ Submit attempt (locks + computes score)
   async function submit() {
     if (saving) return;
 
@@ -88,17 +105,21 @@ export default function AttemptClient({
         method: "POST",
       });
 
-      const data = await res.json().catch(() => ({} as any));
+      const data = await safeJson(res);
 
       if (!res.ok) {
-        throw new Error(data?.error ?? "Failed to submit");
+        const apiErr =
+          typeof data === "object" && data !== null && "error" in data
+            ? (data as { error?: unknown }).error
+            : undefined;
+
+        throw new Error(typeof apiErr === "string" ? apiErr : "Failed to submit");
       }
 
-      // ✅ Go to result page cleanly
       router.push(`/attempt/${attemptId}/result`);
       router.refresh();
-    } catch (e: any) {
-      setError(e.message ?? "Submit failed");
+    } catch (e: unknown) {
+      setError(errMsg(e, "Submit failed"));
     } finally {
       setSaving(false);
     }
@@ -106,26 +127,27 @@ export default function AttemptClient({
 
   const answeredCount = answers.size;
   const totalCount = questions.length;
-
-  // ✅ NEW: require all answered before submit
   const allAnswered = answeredCount === totalCount;
 
   return (
-    <main className="p-6 space-y-4">
-      <div className="text-sm opacity-70">
+    <div className="space-y-6">
+      <div className="text-sm font-medium">
         Question {idx + 1} / {totalCount}
       </div>
 
       <h1 className="text-xl font-semibold">{q.prompt}</h1>
 
-      <div className="grid gap-2">
+      <div className="space-y-2">
         {q.options.map((opt, i) => (
           <button
             key={i}
+            type="button"
             onClick={() => save(q.id, i)}
             disabled={saving}
-            className={`rounded border px-3 py-2 text-left ${
-              selected === i ? "border-black bg-gray-100" : "border-gray-300"
+            className={`w-full rounded border px-3 py-2 text-left transition ${
+              selected === i
+                ? "border-black bg-gray-100"
+                : "border-gray-300 hover:bg-gray-50"
             }`}
           >
             {opt}
@@ -133,48 +155,53 @@ export default function AttemptClient({
         ))}
       </div>
 
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {error && (
+        <div className="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+          {error}
+        </div>
+      )}
 
-      {/* ✅ NEW: show hint only on last question */}
+      <div className="text-sm text-gray-600">
+        Answered {answeredCount} / {totalCount}
+      </div>
+
       {idx === totalCount - 1 && !allAnswered && (
-        <div className="text-sm text-amber-600">
+        <div className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm">
           Answer all questions before submitting.
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-4">
-        <div className="text-sm opacity-60">
-          Answered {answeredCount} / {totalCount}
-        </div>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setIdx((x) => Math.max(0, x - 1))}
+          disabled={idx === 0 || saving}
+          className="rounded border px-3 py-2 disabled:opacity-50"
+        >
+          Back
+        </button>
 
-        <div className="flex gap-2">
+        {idx < questions.length - 1 ? (
           <button
+            type="button"
+            onClick={() => setIdx((x) => Math.min(questions.length - 1, x + 1))}
+            disabled={saving}
             className="rounded border px-3 py-2 disabled:opacity-50"
-            onClick={() => setIdx((x) => Math.max(0, x - 1))}
-            disabled={idx === 0 || saving}
           >
-            Back
+            Next
           </button>
-
-          {idx < questions.length - 1 ? (
-            <button
-              className="rounded bg-black px-3 py-2 text-white disabled:opacity-50"
-              onClick={() => setIdx((x) => Math.min(questions.length - 1, x + 1))}
-              disabled={saving}
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              className="rounded bg-black px-3 py-2 text-white disabled:opacity-50"
-              onClick={submit}
-              disabled={saving || !allAnswered} // ✅ NEW: block submit until all answered
-            >
-              Submit
-            </button>
-          )}
-        </div>
+        ) : (
+          <button
+            type="button"
+            onClick={submit}
+            disabled={saving || !allAnswered}
+            className="rounded border px-3 py-2 disabled:opacity-50"
+            title={!allAnswered ? "Answer all questions to submit" : undefined}
+          >
+            Submit
+          </button>
+        )}
       </div>
-    </main>
+    </div>
   );
 }

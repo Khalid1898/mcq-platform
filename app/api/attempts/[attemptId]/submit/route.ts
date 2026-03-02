@@ -35,16 +35,16 @@ export async function POST(
   const answerMap = new Map<string, number>();
   for (const a of attempt.answers) answerMap.set(a.questionId, a.selectedIndex);
 
-  // ✅ NEW: enforce "all questions answered" on server too
-  const unansweredQuestionIds = questions
-    .map((q) => q.id)
-    .filter((qid) => !answerMap.has(qid));
+  // ✅ Enforce: must answer ALL quiz questions before submit (canonical list = quiz.questionIds)
+  const unansweredQuestionIds = quiz.questionIds.filter(
+    (qid) => !answerMap.has(qid)
+  );
 
   if (unansweredQuestionIds.length > 0) {
     return Response.json(
       {
-        error: "All questions must be answered before submitting",
-        meta: { unansweredQuestionIds },
+        error: "INCOMPLETE_ATTEMPT",
+        missingQuestionIds: unansweredQuestionIds,
         attempt,
       },
       { status: 400 }
