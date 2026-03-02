@@ -8,7 +8,12 @@ export default function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const isAttemptPage = pathname?.startsWith("/attempt/");
+  // ✅ In-progress attempt page: /attempt/<attemptId>
+  // ❌ Result page: /attempt/<attemptId>/result  -> should show Home
+  const isAttemptRoute = pathname?.startsWith("/attempt/");
+  const isResultPage = pathname?.includes("/result");
+  const showExitQuiz = Boolean(isAttemptRoute && !isResultPage);
+
   const [showExitModal, setShowExitModal] = useState(false);
 
   const goToQuizzes = () => {
@@ -22,7 +27,7 @@ export default function AppHeader() {
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
         <div className="text-sm font-semibold tracking-wide">MCQ Platform</div>
 
-        {isAttemptPage ? (
+        {showExitQuiz ? (
           <>
             <button
               type="button"
