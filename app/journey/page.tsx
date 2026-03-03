@@ -1,5 +1,5 @@
 import { JourneyStart } from "@/components/journey/JourneyStart";
 
-export default function HomePage() {
+export default function JourneyPage() {
   return <JourneyStart />;
 }

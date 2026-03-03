@@ -86,28 +86,13 @@ export default function AppHeader() {
         ) : showSessionNav ? (
           <nav className="flex items-center gap-2">
             <Link
-              href="/"
+              href="/dashboard"
               className="rounded-xl border-2 border-border bg-surface px-4 py-2 text-sm font-medium text-text hover:bg-surface-2"
             >
               Dashboard
             </Link>
           </nav>
-        ) : (
-          <nav className="flex items-center gap-2">
-            <Link
-              href="/"
-              className="rounded-xl border-2 border-border bg-surface px-4 py-2 text-sm font-medium text-text hover:bg-surface-2"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/journey"
-              className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
-            >
-              Start journey
-            </Link>
-          </nav>
-        )}
+        ) : null}
       </div>
     </header>
   );
