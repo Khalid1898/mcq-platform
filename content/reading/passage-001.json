@@ -1,0 +1,237 @@
+{
+  "id": "passage-001",
+  "title": "The Psychology of Time Perception",
+  "level": "medium",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "Humans do not experience time as a simple, constant flow. Instead, our perception of time is shaped by attention, emotion, memory, and even cultural expectations. While clocks measure time in precise intervals, the brain constructs a subjective version of time that can feel faster or slower depending on circumstances."
+    },
+    {
+      "id": "p2",
+      "text": "One key factor in time perception is attention. When individuals focus intensely on a task, they often report that time \"flies.\" In such cases, cognitive resources are directed toward task-related processing, leaving fewer mental resources available to monitor the passage of time. Conversely, when people are bored or waiting without stimulation, they become more aware of time itself, which makes minutes feel prolonged."
+    },
+    {
+      "id": "p3",
+      "text": "Emotion also plays a critical role. High-arousal emotions such as fear or excitement can distort time perception. In threatening situations, many people report that events seem to unfold in slow motion. Neuroscientists suggest that this may not be because the brain processes information more slowly, but because emotionally intense events are encoded into memory with greater detail. When recalled, these dense memories give the impression that the experience lasted longer than it actually did."
+    },
+    {
+      "id": "p4",
+      "text": "Memory is another central mechanism. The brain does not store every moment equally. Periods filled with novelty—such as traveling to a new country—often feel longer in retrospect because they contain more unique memories. By contrast, routine activities generate fewer distinctive memory markers. As a result, months spent in repetitive environments may seem to have passed quickly when looking back."
+    },
+    {
+      "id": "p5",
+      "text": "Age influences time perception as well. Researchers have observed that children often experience time as moving slowly, whereas older adults frequently describe years as passing rapidly. Some psychologists propose that this occurs because each year represents a smaller proportion of an individual’s life as they grow older. Others argue that reduced novelty in adulthood contributes to the acceleration of perceived time."
+    },
+    {
+      "id": "p6",
+      "text": "Cultural factors may also shape how time is experienced. In societies that emphasize punctuality and strict scheduling, time is treated as a limited commodity. This can heighten awareness of its passage. In contrast, cultures that prioritize relational interactions over rigid timetables may foster a more fluid perception of time."
+    },
+    {
+      "id": "p7",
+      "text": "Recent research using brain imaging techniques has identified networks in the basal ganglia and prefrontal cortex that appear to regulate temporal processing. However, scientists caution that time perception is not localized to a single \"time center\" in the brain. Instead, it emerges from the interaction of multiple neural systems responsible for attention, emotion, and memory."
+    },
+    {
+      "id": "p8",
+      "text": "Understanding time perception has practical implications. It can inform the design of workplaces, educational settings, and even digital applications. For example, reducing boredom in waiting environments—through music or visual engagement—can shorten perceived waiting time without changing actual duration."
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "type": "TFNG",
+      "order": 1,
+      "paragraphHint": 2,
+      "prompt": "People are always aware of the passage of time when concentrating on tasks.",
+      "options": ["True", "False", "Not Given"],
+      "correctAnswer": "False",
+      "explanation": "When individuals focus intensely, they direct resources to the task and become less aware of time, so the statement is the opposite of the passage.",
+      "coachTips": {
+        "validates": "Checks your ability to match a factual statement to the passage.",
+        "trap": "Statements that feel generally true but are not stated in this passage.",
+        "mentalModel": "Locate the exact sentence that talks about this idea; do not rely on outside knowledge."
+      }
+    },
+    {
+      "id": "q2",
+      "type": "TFNG",
+      "order": 2,
+      "paragraphHint": 3,
+      "prompt": "Fear can cause people to believe that events are happening more slowly.",
+      "options": ["True", "False", "Not Given"],
+      "correctAnswer": "True",
+      "explanation": "The passage states that in threatening situations people report events seeming to unfold in slow motion.",
+      "coachTips": {
+        "validates": "Distinguishing contradiction from absence of information.",
+        "trap": "Reading too quickly and missing 'not', 'never', or other negations.",
+        "mentalModel": "Ask: does the passage say the opposite, or does it say nothing?"
+      }
+    },
+    {
+      "id": "q3",
+      "type": "TFNG",
+      "order": 3,
+      "paragraphHint": 4,
+      "prompt": "The brain stores every moment of experience with equal detail.",
+      "options": ["True", "False", "Not Given"],
+      "correctAnswer": "False",
+      "explanation": "The passage explicitly states that the brain does not store every moment equally.",
+      "coachTips": {
+        "validates": "Ability to say 'I don’t know' when the text is silent.",
+        "trap": "Assuming information based on real-world knowledge.",
+        "mentalModel": "If you need to guess beyond the text, it is probably Not Given."
+      }
+    },
+    {
+      "id": "q4",
+      "type": "TFNG",
+      "order": 4,
+      "paragraphHint": 5,
+      "prompt": "Older adults universally experience time more slowly than children.",
+      "options": ["True", "False", "Not Given"],
+      "correctAnswer": "False",
+      "explanation": "The passage contrasts children experiencing time as slow with older adults feeling that years pass rapidly; this is the opposite of the statement.",
+      "coachTips": {
+        "validates": "Checks your ability to reconcile statements about age with the text.",
+        "trap": "Reversing the relationship described between children and older adults.",
+        "mentalModel": "Always match the direction of a comparison (slower vs faster) carefully with the passage."
+      }
+    },
+    {
+      "id": "q5",
+      "type": "MATCHING_INFO",
+      "order": 5,
+      "paragraphHint": 6,
+      "prompt": "Cultural attitudes toward punctuality may influence time perception.",
+      "options": ["True", "False", "Not Given"],
+      "correctAnswer": "True",
+      "explanation": "The passage explains that in punctuality-focused societies time is treated as a limited commodity, which heightens awareness of its passage.",
+      "coachTips": {
+        "validates": "Connects cultural values with subjective time experience.",
+        "trap": "Missing how punctuality and strict scheduling change awareness of time.",
+        "mentalModel": "Look for cause–effect links between cultural norms and perception."
+      }
+    },
+    {
+      "id": "q6",
+      "type": "MATCHING_INFO",
+      "order": 6,
+      "paragraphHint": 7,
+      "prompt": "A reference to specific brain regions involved in time processing",
+      "options": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4", "Paragraph 5", "Paragraph 6", "Paragraph 7", "Paragraph 8"],
+      "correctAnswer": "Paragraph 7",
+      "explanation": "Paragraph 7 mentions networks in the basal ganglia and prefrontal cortex.",
+      "coachTips": {
+        "validates": "Linking examples to the paragraph that introduces them.",
+        "trap": "Confusing where an idea is mentioned vs. where it is explained.",
+        "mentalModel": "Find where the main claim appears, then check if examples support it."
+      }
+    },
+    {
+      "id": "q7",
+      "type": "SENTENCE_COMPLETION",
+      "order": 7,
+      "paragraphHint": 5,
+      "prompt": "An explanation involving proportional lifespan theory",
+      "blanks": ["b1"],
+      "correctAnswer": ["Paragraph 5"],
+      "explanation": "Paragraph 5 explains that each year represents a smaller proportion of an individual's life as they age.",
+      "coachTips": {
+        "validates": "Locating where a theoretical explanation is given.",
+        "trap": "Confusing lifespan proportion theory with novelty explanations.",
+        "mentalModel": "Match conceptual explanations (not just facts) to the paragraph that develops them."
+      }
+    },
+    {
+      "id": "q8",
+      "type": "MATCHING_INFO",
+      "order": 8,
+      "paragraphHint": 4,
+      "prompt": "An example of how novelty affects retrospective time perception",
+      "options": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4", "Paragraph 5", "Paragraph 6", "Paragraph 7", "Paragraph 8"],
+      "correctAnswer": "Paragraph 4",
+      "explanation": "Paragraph 4 gives the example of traveling to a new country feeling longer in retrospect because of novel memories.",
+      "coachTips": {
+        "validates": "Connecting examples of novelty to their paragraph.",
+        "trap": "Looking only for the word 'novelty' instead of the example.",
+        "mentalModel": "Use concrete examples (e.g. travel) as anchors for abstract concepts like novelty."
+      }
+    },
+    {
+      "id": "q9",
+      "type": "MATCHING_INFO",
+      "order": 9,
+      "paragraphHint": 8,
+      "prompt": "A practical application related to reducing perceived waiting time",
+      "options": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4", "Paragraph 5", "Paragraph 6", "Paragraph 7", "Paragraph 8"],
+      "correctAnswer": "Paragraph 8",
+      "explanation": "Paragraph 8 describes using music or visual engagement to shorten perceived waiting time.",
+      "coachTips": {
+        "validates": "Identifying real-world applications described in the passage.",
+        "trap": "Confusing explanation of mechanisms with applied examples.",
+        "mentalModel": "Look for sentences that start with phrases like 'For example' to find applications."
+      }
+    },
+    {
+      "id": "q10",
+      "type": "TFNG",
+      "order": 10,
+      "paragraphHint": 2,
+      "prompt": "When people are bored, they become more aware of the __________ of time.",
+      "options": ["True", "False", "Not Given"],
+      "correctAnswer": "passage",
+      "explanation": "Paragraph 2 explains that in boredom people become more aware of the passage of time.",
+      "coachTips": {
+        "validates": "Checking nuanced statements with qualifiers.",
+        "trap": "Missing limiting words like 'some', 'often', 'rarely'.",
+        "mentalModel": "Pay attention to degree words that change the truth of the statement."
+      }
+    },
+    {
+      "id": "q11",
+      "type": "TFNG",
+      "order": 11,
+      "paragraphHint": 3,
+      "prompt": "Emotionally intense events are encoded into memory with greater __________.",
+      "options": [],
+      "correctAnswer": "detail",
+      "explanation": "Paragraph 3 says emotionally intense events are encoded with greater detail.",
+      "coachTips": {
+        "validates": "Precise lifting of a key noun from the passage.",
+        "trap": "Paraphrasing instead of using the exact word from the text.",
+        "mentalModel": "Locate the clause that directly follows the idea in the question stem."
+      }
+    },
+    {
+      "id": "q12",
+      "type": "SENTENCE_COMPLETION",
+      "order": 12,
+      "paragraphHint": 4,
+      "prompt": "Routine activities produce fewer distinctive memory __________.",
+      "blanks": ["b1"],
+      "correctAnswer": ["markers"],
+      "explanation": "Paragraph 4 states that routine activities generate fewer distinctive memory markers.",
+      "coachTips": {
+        "validates": "Detail retrieval from a contrast example.",
+        "trap": "Confusing 'memories' with 'memory markers'.",
+        "mentalModel": "Use the exact technical term when the passage introduces one."
+      }
+    },
+    {
+      "id": "q13",
+      "type": "SENTENCE_COMPLETION",
+      "order": 13,
+      "paragraphHint": 6,
+      "prompt": "In some cultures, time is treated as a limited __________.",
+      "blanks": ["b1"],
+      "correctAnswer": ["commodity"],
+      "explanation": "Paragraph 6 explicitly describes time as a limited commodity in punctuality-focused societies.",
+      "coachTips": {
+        "validates": "Reading for key metaphorical nouns used to describe time.",
+        "trap": "Replacing the economic metaphor with a more general word like 'resource'.",
+        "mentalModel": "When the passage uses a metaphor (time as a commodity), expect it to be a sentence-completion target."
+      }
+    }
+  ]
+}
+

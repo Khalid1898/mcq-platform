@@ -9,10 +9,8 @@ export default function AppHeader() {
   const router = useRouter();
 
   const isAttemptRoute = pathname?.startsWith("/attempt/");
-  const isSessionRoute = pathname?.startsWith("/session/");
   const isResultPage = pathname?.includes("/result");
   const showExitQuiz = Boolean(isAttemptRoute && !isResultPage);
-  const showSessionNav = Boolean(isSessionRoute && !pathname?.endsWith("/result"));
 
   const [showExitModal, setShowExitModal] = useState(false);
 
@@ -83,15 +81,6 @@ export default function AppHeader() {
               </div>
             )}
           </>
-        ) : showSessionNav ? (
-          <nav className="flex items-center gap-2">
-            <Link
-              href="/dashboard"
-              className="rounded-xl border-2 border-border bg-surface px-4 py-2 text-sm font-medium text-text hover:bg-surface-2"
-            >
-              Dashboard
-            </Link>
-          </nav>
         ) : null}
       </div>
     </header>
