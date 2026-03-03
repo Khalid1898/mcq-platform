@@ -85,20 +85,17 @@ export default function DashboardPage() {
       <Card className="border-2 border-primary/20 bg-emerald-50/50 transition-transform hover:-translate-y-0.5 hover:shadow-md">
         <CardHeader className="flex flex-col gap-4 border-none sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2">
-            <Badge variant="default">Today&apos;s Mission</Badge>
+            <Badge variant="default">Training journey</Badge>
             <CardTitle className="text-lg text-text">
-              Mixed reading + writing intro
+              What are you training today?
             </CardTitle>
             <p className="max-w-xl text-[15px] leading-relaxed text-muted">
-              {missionDescription}
+              Pick your skills and complete a short adaptive session—one question at a time, with coach tips and XP.
             </p>
           </div>
           <div className="flex flex-col items-stretch gap-3 sm:items-end">
-            <Badge variant="outline" className="w-fit">
-              +50 XP
-            </Badge>
             <Button asChild size="lg">
-              <Link href="/mission">Start today&apos;s mission</Link>
+              <Link href="/journey">Start my journey</Link>
             </Button>
           </div>
         </CardHeader>

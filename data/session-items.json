@@ -1,0 +1,111 @@
+[
+  {
+    "id": "read-1",
+    "type": "single_choice",
+    "skill": "reading",
+    "prompt": "The writer suggests that the main reason for the decline in bee populations is:",
+    "passage": "Recent studies point to a combination of factors: pesticide use, habitat loss, and climate variability. Among these, the evidence most strongly supports neonicotinoid exposure as a primary driver of colony collapse in temperate regions.",
+    "options": [
+      "habitat loss only",
+      "neonicotinoid pesticides",
+      "climate variability alone",
+      "a single unknown factor"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The passage states that 'the evidence most strongly supports neonicotinoid exposure as a primary driver'.",
+    "coachTips": {
+      "validates": "Paraphrase detection: matching 'primary driver' to 'main reason'.",
+      "trap": "Options that repeat other mentioned factors (habitat, climate) to distract from the stated 'most strongly' claim.",
+      "mentalModel": "Find the sentence that makes a strength claim (e.g. 'most strongly', 'primary') and map it to the question stem."
+    }
+  },
+  {
+    "id": "read-2",
+    "type": "true_false_ng",
+    "skill": "reading",
+    "prompt": "Do the following statements agree with the information in the passage?",
+    "passage": "The museum was opened in 1992. It receives no government funding and relies entirely on donations and ticket sales. Plans for an extension were announced in 2019 but have not yet been approved.",
+    "statements": [
+      { "id": "s1", "text": "The museum has been open since the early 1990s.", "correct": "true" },
+      { "id": "s2", "text": "The extension has been completed.", "correct": "false" },
+      { "id": "s3", "text": "The museum is funded by the government.", "correct": "false" }
+    ],
+    "correctAnswer": null,
+    "explanation": "S1: 1992 = early 90s (True). S2: 'have not yet been approved' implies not built (False). S3: 'no government funding' (False).",
+    "coachTips": {
+      "validates": "True/False/Not Given: distinguishing between False (contradicts) and Not Given (not stated).",
+      "trap": "Confusing 'not yet approved' with 'not built'—here they align. For NG, the idea must be absent, not just unconfirmed.",
+      "mentalModel": "True = stated or clearly implied. False = contradicted. Not Given = not mentioned and not implied."
+    }
+  },
+  {
+    "id": "read-3",
+    "type": "gap_fill",
+    "skill": "reading",
+    "prompt": "Complete the summary with words from the box below.",
+    "passage": "Solar panels convert sunlight into electricity. The efficiency of this process has improved steadily, making solar power increasingly competitive with fossil fuels.",
+    "blanks": [
+      { "id": "b1", "correct": "sunlight" },
+      { "id": "b2", "correct": "efficiency" }
+    ],
+    "wordBank": ["sunlight", "efficiency", "wind", "cost", "batteries"],
+    "correctAnswer": null,
+    "explanation": "First blank: 'convert sunlight into electricity'. Second: 'The efficiency of this process'.",
+    "coachTips": {
+      "validates": "Summary completion: matching stem words to passage and selecting from the box.",
+      "trap": "Picking a word that fits grammar but not the exact meaning in the passage.",
+      "mentalModel": "Locate the sentence that the summary mirrors, then choose the word that appears in or best matches that sentence."
+    }
+  },
+  {
+    "id": "write-1",
+    "type": "short_answer",
+    "skill": "writing",
+    "prompt": "In one sentence, what is the main purpose of an essay introduction?",
+    "correctAnswer": "To present the topic and the writer's position (or similar).",
+    "explanation": "The introduction should state the topic and your thesis or main position so the reader knows what to expect.",
+    "coachTips": {
+      "validates": "Task 2 awareness: understanding the function of each paragraph.",
+      "trap": "Listing everything an intro could do (hook, context) instead of the main purpose.",
+      "mentalModel": "Introduction = topic + position. Save details for the body."
+    }
+  },
+  {
+    "id": "listen-1",
+    "type": "single_choice",
+    "skill": "listening",
+    "prompt": "What does the speaker recommend for dealing with stress before the exam?",
+    "options": [
+      "Cramming the night before",
+      "Short practice sessions and rest",
+      "Avoiding all practice",
+      "Changing the exam date"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The speaker recommends short practice sessions and adequate rest rather than last-minute cramming.",
+    "coachTips": {
+      "validates": "Listening for recommendations: catching advice verbs (recommend, suggest, better to).",
+      "trap": "Options that sound plausible but were not recommended (e.g. cramming, avoiding practice).",
+      "mentalModel": "Listen for the turn—'I recommend...', 'It's better to...'—and match to one option."
+    }
+  },
+  {
+    "id": "speak-1",
+    "type": "single_choice",
+    "skill": "speaking",
+    "prompt": "Which strategy helps most when you need thinking time in Part 2?",
+    "options": [
+      "Staying silent until you know the answer",
+      "Using a short phrase to buy time, then continuing",
+      "Repeating the question word for word",
+      "Asking the examiner to repeat"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Using fillers or short phrases ('That's an interesting question', 'Let me think...') gives you time without long silence.",
+    "coachTips": {
+      "validates": "Speaking fluency: using discourse markers and fillers appropriately.",
+      "trap": "Long silence hurts fluency score; repeating the question adds little content.",
+      "mentalModel": "Buy time with a short, natural phrase, then deliver your answer—examiners expect some planning time."
+    }
+  }
+]
