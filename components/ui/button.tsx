@@ -11,8 +11,7 @@ const buttonVariants = cva(
         default:
           "bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary shadow-sm",
         outline:
-          "border-2 border-
-          border bg-surface text-text hover:bg-surface-2 focus-visible:ring-primary",
+          "border-2 border-border bg-surface text-text hover:bg-surface-2 focus-visible:ring-primary",
         ghost:
           "bg-transparent text-text hover:bg-surface-2 focus-visible:ring-primary/30",
         subtle:
