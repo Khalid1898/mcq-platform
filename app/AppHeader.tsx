@@ -8,8 +8,6 @@ export default function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // ✅ In-progress attempt page: /attempt/<attemptId>
-  // ❌ Result page: /attempt/<attemptId>/result  -> should show Home
   const isAttemptRoute = pathname?.startsWith("/attempt/");
   const isResultPage = pathname?.includes("/result");
   const showExitQuiz = Boolean(isAttemptRoute && !isResultPage);
@@ -23,56 +21,58 @@ export default function AppHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white">
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-        <div className="text-sm font-semibold tracking-wide">MCQ Platform</div>
+    <header className="sticky top-0 z-50 border-b border-border bg-surface">
+      <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3 sm:px-6">
+        <Link
+          href="/"
+          className="flex items-center gap-2.5 text-[15px] font-semibold text-text hover:opacity-85"
+        >
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-sm font-bold text-primary">
+            BP
+          </span>
+          <span>IELTS Practice</span>
+        </Link>
 
         {showExitQuiz ? (
           <>
             <button
               type="button"
               onClick={() => setShowExitModal(true)}
-              className="rounded border px-3 py-2 text-sm hover:bg-gray-50"
+              className="rounded-xl border-2 border-border bg-surface px-4 py-2 text-sm font-medium text-text shadow-sm hover:bg-surface-2"
             >
-              Exit Quiz
+              Exit quiz
             </button>
 
             {showExitModal && (
               <div
-                className="fixed inset-0 z-50 flex items-center justify-center"
+                className="fixed inset-0 z-50 flex items-center justify-center p-4"
                 aria-modal="true"
                 role="dialog"
               >
-                {/* Backdrop */}
                 <div
-                  className="absolute inset-0 bg-black/40"
+                  className="absolute inset-0 bg-text/20 backdrop-blur-sm"
                   onClick={() => setShowExitModal(false)}
                 />
-
-                {/* Modal */}
-                <div className="relative w-full max-w-md rounded-xl bg-white p-4 shadow-lg">
-                  <div className="mb-2 text-lg font-semibold">
+                <div className="relative w-full max-w-md rounded-xl border border-border bg-surface p-6 shadow-lg">
+                  <div className="mb-2 text-lg font-semibold text-text">
                     Leave this attempt?
                   </div>
-
-                  <div className="text-sm text-gray-700">
+                  <div className="text-[15px] leading-relaxed text-muted">
                     Your progress is saved. You can come back later and continue
                     this attempt from the Quizzes page.
                   </div>
-
-                  <div className="mt-4 flex justify-end gap-2">
+                  <div className="mt-6 flex justify-end gap-3">
                     <button
                       type="button"
                       onClick={() => setShowExitModal(false)}
-                      className="rounded border px-3 py-2 text-sm hover:bg-gray-50"
+                      className="rounded-xl border-2 border-border px-4 py-2 text-sm font-medium text-text hover:bg-surface-2"
                     >
                       Stay
                     </button>
-
                     <button
                       type="button"
                       onClick={goToQuizzes}
-                      className="rounded bg-black px-3 py-2 text-sm text-white hover:opacity-90"
+                      className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
                     >
                       Go to Quizzes
                     </button>
@@ -82,12 +82,14 @@ export default function AppHeader() {
             )}
           </>
         ) : (
-          <Link
-            href="/quizzes"
-            className="rounded border px-3 py-2 text-sm hover:bg-gray-50"
-          >
-            Home
-          </Link>
+          <nav className="flex items-center gap-2">
+            <Link
+              href="/"
+              className="rounded-xl border-2 border-border bg-surface px-4 py-2 text-sm font-medium text-text hover:bg-surface-2"
+            >
+              Dashboard
+            </Link>
+          </nav>
         )}
       </div>
     </header>

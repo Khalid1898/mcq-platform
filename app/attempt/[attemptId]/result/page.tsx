@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 type Attempt = {
   id: string;
@@ -31,27 +32,62 @@ export default async function ResultPage({ params }: Props) {
   const attempt = await fetchAttempt(attemptId);
 
   if (!attempt.submittedAt) {
-    // ✅ user hit result page without submitting
     return (
-      <div className="mx-auto max-w-2xl p-6">
-        <h1 className="text-2xl font-bold">Not submitted yet</h1>
-        <p className="mt-2 text-gray-600">Go back and submit your attempt first.</p>
+      <div className="mx-auto max-w-2xl space-y-4 rounded-xl border border-border bg-surface p-6">
+        <h1 className="text-2xl font-semibold text-text">Not submitted yet</h1>
+        <p className="text-[15px] leading-relaxed text-muted">
+          Go back and submit your attempt first.
+        </p>
+        <Link
+          href={`/attempt/${attemptId}`}
+          className="inline-block rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Back to attempt
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
-      <h1 className="text-2xl font-bold">Result</h1>
-      <div className="mt-4 rounded border p-4">
-        <div className="text-gray-600">Attempt ID</div>
-        <div className="font-mono">{attempt.id}</div>
+    <div className="mx-auto max-w-2xl space-y-8 py-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-text">Result</h1>
+        <p className="mt-1.5 text-[15px] text-muted">
+          Your attempt has been submitted. Score and details are below.
+        </p>
+      </div>
 
-        <div className="mt-4 text-gray-600">Score</div>
-        <div className="text-3xl font-bold">{attempt.score ?? 0}%</div>
-
-        <div className="mt-4 text-gray-600">Submitted</div>
-        <div>{attempt.submittedAt}</div>
+      <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
+        <div className="space-y-4">
+          <div>
+            <div className="text-xs font-medium uppercase tracking-wide text-muted">
+              Attempt ID
+            </div>
+            <div className="mt-1 font-mono text-[15px] text-text">{attempt.id}</div>
+          </div>
+          <div>
+            <div className="text-xs font-medium uppercase tracking-wide text-muted">
+              Score
+            </div>
+            <div className="mt-1 text-3xl font-semibold text-primary">
+              {attempt.score ?? 0}%
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-medium uppercase tracking-wide text-muted">
+              Submitted
+            </div>
+            <div className="mt-1 text-[15px] text-text">{attempt.submittedAt}</div>
+          </div>
+        </div>
+        <div className="mt-6 border-t border-border pt-4">
+          <Link
+            href="/quizzes"
+            className="inline-block rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Back to quizzes
+          </Link>
+        </div>
       </div>
     </div>
   );

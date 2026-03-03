@@ -27,9 +27,13 @@ export default async function QuizDetail({ params }: Props) {
   const quiz = await fetchQuizById(quizId);
 
   return (
-    <main className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold">{quiz.title}</h1>
-      <p>Topic: {quiz.topic}</p>
+    <main className="space-y-6 py-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-text">
+          {quiz.title}
+        </h1>
+        <p className="mt-1.5 text-[15px] text-muted">Topic: {quiz.topic}</p>
+      </div>
       <StartQuizButton quizId={quiz.id} />
     </main>
   );

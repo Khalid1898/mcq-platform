@@ -3,11 +3,14 @@ import { getQuizById } from "@/lib/quizzes";
 import { getQuestionsByIds } from "@/lib/questions";
 
 export async function POST(
-  _req: Request,
-  context: { params: Promise<{ attemptId: string }> } // ✅ Next 16 async params
+  req: Request,
+  _context: { params: Promise<Record<string, never>> }
 ) {
-  const { attemptId } = await context.params;
-  const id = (attemptId ?? "").trim();
+  const body = (await req.json().catch(() => ({}))) as { attemptId?: string };
+  const id = (body?.attemptId ?? "").trim();
+  if (!id) {
+    return Response.json({ error: "attemptId is required" }, { status: 400 });
+  }
 
   const attempt = await getAttempt(id);
   if (!attempt) {

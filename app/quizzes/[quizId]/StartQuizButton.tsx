@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   quizId: string;
@@ -22,22 +23,21 @@ export default function StartQuizButton({ quizId }: Props) {
         body: JSON.stringify({ quizId }),
       });
 
-      const data = await res.json().catch(() => ({} as any));
+      const data = await res.json().catch(() => ({} as Record<string, unknown>));
 
       if (!res.ok) {
         console.error("Start quiz failed:", res.status, data);
-        alert(data?.error ?? `Start quiz failed (${res.status})`);
+        alert((data as { error?: string })?.error ?? `Start quiz failed (${res.status})`);
         return;
       }
 
-      const attemptId = data?.attempt?.id as string | undefined;
+      const attemptId = (data as { attempt?: { id?: string } })?.attempt?.id;
       if (!attemptId) {
         console.error("Start quiz response missing attempt.id:", data);
         alert("Start quiz failed: missing attempt id");
         return;
       }
 
-      // ✅ Always go to /attempt/<attemptId> (attemptId is never stale because it's newly created)
       router.push(`/attempt/${attemptId}`);
       router.refresh();
     } finally {
@@ -46,13 +46,13 @@ export default function StartQuizButton({ quizId }: Props) {
   }
 
   return (
-    <button
+    <Button
       type="button"
       onClick={handleStart}
       disabled={loading}
-      className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+      size="lg"
     >
-      {loading ? "Starting..." : "Start Quiz"}
-    </button>
+      {loading ? "Starting…" : "Start quiz"}
+    </Button>
   );
 }

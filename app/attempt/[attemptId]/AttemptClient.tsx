@@ -194,41 +194,36 @@ export default function AttemptClient({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Top Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-sm font-medium">
+    <div className="space-y-8 py-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="text-[15px] font-medium text-text">
           Question {idx + 1} / {totalCount}
-          <span className="ml-2 text-gray-600">
+          <span className="ml-2 text-muted">
             (Answered {answeredCount} / {totalCount})
           </span>
         </div>
-
         <div className="flex gap-2">
           <button
             type="button"
             onClick={goToNextUnanswered}
             disabled={saving || unansweredIndexes.length === 0}
-            className="rounded border px-3 py-2 text-sm disabled:opacity-50"
+            className="rounded-xl border-2 border-border bg-surface px-4 py-2 text-sm font-medium text-text disabled:opacity-50 hover:bg-surface-2"
           >
             Next Unanswered
           </button>
-
           <button
             type="button"
             onClick={goToFirstSkipped}
             disabled={saving || skippedIndexes.length === 0}
-            className="rounded border px-3 py-2 text-sm disabled:opacity-50"
+            className="rounded-xl border-2 border-border bg-surface px-4 py-2 text-sm font-medium text-text disabled:opacity-50 hover:bg-surface-2"
           >
             Review Skipped
           </button>
         </div>
       </div>
 
-      {/* Question Palette */}
-      <div className="rounded border bg-white p-3">
-        <div className="mb-2 text-sm font-semibold">Questions</div>
-
+      <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="mb-3 text-sm font-semibold text-text">Questions</div>
         <div className="flex flex-wrap gap-2">
           {questions.map((qq, i) => {
             const isCurrent = i === idx;
@@ -236,14 +231,12 @@ export default function AttemptClient({
             const isSkipped = visited.has(qq.id) && !isAnswered;
 
             const base =
-              "h-9 w-9 rounded text-sm flex items-center justify-center transition";
+              "h-10 w-10 rounded-xl text-sm font-medium flex items-center justify-center transition-colors disabled:opacity-50";
 
-            const ring = isCurrent ? "ring-2 ring-black ring-offset-2" : "";
-
-            let cls = "border border-gray-300 text-gray-700";
-
-            if (isAnswered) cls = "bg-black text-white border-black";
-            else if (isSkipped) cls = "bg-yellow-400 text-black border-yellow-500";
+            let cls = "border-2 border-border bg-surface-2 text-text hover:bg-surface";
+            if (isCurrent) cls = "border-2 border-primary ring-2 ring-primary/30 ring-offset-2 bg-surface text-text";
+            else if (isAnswered) cls = "border-2 border-primary bg-primary text-primary-foreground";
+            else if (isSkipped) cls = "border-2 border-amber-300 bg-amber-50 text-amber-800";
 
             return (
               <button
@@ -251,7 +244,7 @@ export default function AttemptClient({
                 type="button"
                 onClick={() => goToQuestion(i)}
                 disabled={saving}
-                className={`${base} ${cls} ${ring} disabled:opacity-50`}
+                className={`${base} ${cls}`}
               >
                 {i + 1}
               </button>
@@ -260,27 +253,24 @@ export default function AttemptClient({
         </div>
       </div>
 
-      {/* Question */}
-      <h1 className="text-xl font-semibold">{q.prompt}</h1>
+      <h1 className="text-xl font-semibold leading-snug text-text">{q.prompt}</h1>
 
-      {/* Options */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         {q.options.map((opt, i) => {
           const isSelected = selected === i;
-
           return (
             <label
               key={i}
-              className={`flex cursor-pointer items-start gap-3 rounded border px-3 py-2 transition ${
+              className={`flex min-h-[52px] cursor-pointer items-start gap-3 rounded-xl border-2 px-4 py-3 text-[15px] leading-relaxed transition-colors ${
                 isSelected
-                  ? "border-black bg-gray-100 font-semibold"
-                  : "border-gray-300 hover:border-black"
-              } ${saving ? "opacity-70 cursor-not-allowed" : ""}`}
+                  ? "border-primary bg-emerald-50/50 font-medium text-text ring-2 ring-primary/20"
+                  : "border-border bg-surface text-text hover:border-primary/50"
+              } ${saving ? "cursor-not-allowed opacity-70" : ""}`}
             >
               <input
                 type="radio"
                 name={`q-${q.id}`}
-                className="mt-1"
+                className="mt-1 h-4 w-4 accent-primary"
                 checked={isSelected}
                 disabled={saving}
                 onChange={() => save(q.id, i)}
@@ -292,29 +282,26 @@ export default function AttemptClient({
       </div>
 
       {error && (
-        <div className="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[15px] text-red-800">
           {error}
         </div>
       )}
 
-      {/* Navigation */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-3 border-t border-border pt-6">
         <button
           type="button"
           onClick={goPrev}
           disabled={saving || idx === 0}
-          className="rounded border px-3 py-2 disabled:opacity-50"
+          className="rounded-xl border-2 border-border bg-surface px-4 py-2.5 text-sm font-medium text-text disabled:opacity-50 hover:bg-surface-2"
         >
           Previous
         </button>
-
-        {/* ✅ If all answered, show Submit from ANY page */}
         {allAnswered ? (
           <button
             type="button"
             onClick={submit}
             disabled={saving}
-            className="rounded border px-3 py-2 disabled:opacity-50"
+            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-50"
           >
             Submit
           </button>
@@ -324,16 +311,15 @@ export default function AttemptClient({
               type="button"
               onClick={skip}
               disabled={saving}
-              className="rounded border px-3 py-2 disabled:opacity-50"
+              className="rounded-xl border-2 border-border bg-surface px-4 py-2.5 text-sm font-medium text-text hover:bg-surface-2 disabled:opacity-50"
             >
               Skip
             </button>
-
             <button
               type="button"
               onClick={goNext}
               disabled={saving}
-              className="rounded border px-3 py-2 disabled:opacity-50"
+              className="rounded-xl border-2 border-border bg-surface px-4 py-2.5 text-sm font-medium text-text hover:bg-surface-2 disabled:opacity-50"
             >
               Next
             </button>
@@ -343,7 +329,7 @@ export default function AttemptClient({
             type="button"
             onClick={submit}
             disabled={saving || !allAnswered}
-            className="rounded border px-3 py-2 disabled:opacity-50"
+            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-50"
           >
             Submit
           </button>

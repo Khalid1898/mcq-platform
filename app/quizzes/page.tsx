@@ -8,14 +8,14 @@ type Quiz = {
 };
 
 async function getBaseUrl() {
-  const h = await headers(); // ✅ headers() is async in your Next version
-  const host = h.get("host"); // e.g. localhost:3000
+  const h = await headers();
+  const host = h.get("host");
   const proto = h.get("x-forwarded-proto") ?? "http";
   return `${proto}://${host}`;
 }
 
 async function fetchQuizzes(): Promise<Quiz[]> {
-  const baseUrl = await getBaseUrl(); // ✅ await
+  const baseUrl = await getBaseUrl();
   const res = await fetch(`${baseUrl}/api/quizzes`, { cache: "no-store" });
 
   if (!res.ok) throw new Error("Failed to load quizzes");
@@ -28,18 +28,25 @@ export default async function QuizCatalog() {
   const quizzes = await fetchQuizzes();
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Quiz Catalog</h1>
+    <div className="space-y-8 py-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-text">
+          Quiz Catalog
+        </h1>
+        <p className="mt-1.5 text-[15px] leading-relaxed text-muted">
+          Choose a quiz to practice. Your progress is saved as you go.
+        </p>
+      </div>
 
-      <div className="grid gap-6">
+      <div className="grid gap-4 sm:grid-cols-2">
         {quizzes.map((quiz) => (
           <Link
             key={quiz.id}
             href={`/quizzes/${quiz.id}`}
-            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition"
+            className="block rounded-xl border border-border bg-surface p-6 shadow-sm transition-shadow hover:shadow-md"
           >
-            <h2 className="text-xl font-semibold">{quiz.title}</h2>
-            <p className="text-gray-500">{quiz.topic}</p>
+            <h2 className="text-[15px] font-semibold text-text">{quiz.title}</h2>
+            <p className="mt-1 text-sm text-muted">{quiz.topic}</p>
           </Link>
         ))}
       </div>

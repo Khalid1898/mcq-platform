@@ -4,9 +4,10 @@ import { getQuestionsByIds } from "@/lib/questions";
 
 export async function POST(
   _req: Request,
-  ctx: { params: { attemptId: string } }
+  context: { params: Promise<{ attemptId: string }> }
 ) {
-  const attemptId = (ctx.params.attemptId ?? "").trim();
+  const { attemptId: raw } = await context.params;
+  const attemptId = (raw ?? "").trim();
 
   const attempt = await getAttempt(attemptId);
   if (!attempt) {
