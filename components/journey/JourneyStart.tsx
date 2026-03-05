@@ -26,11 +26,10 @@ export function JourneyStart() {
     <div className="mx-auto flex min-h-[70vh] max-w-3xl flex-col items-center justify-center gap-8 px-4 py-8">
       <div className="text-center">
         <h1 className="text-2xl font-semibold tracking-tight text-text">
-          What are you training today?
+          Train your mind for IELTS
         </h1>
         <p className="mt-2 text-[15px] leading-relaxed text-muted">
-          Choose one or more skills. We&apos;ll build a short, focused session
-          for you.
+          Walk into the exam like you wrote the question paper.
         </p>
       </div>
 
@@ -44,9 +43,6 @@ export function JourneyStart() {
         >
           Start my journey
         </Button>
-        <p className="text-xs text-muted">
-          1–3 questions · one at a time · with coach tips.
-        </p>
       </div>
     </div>
   );

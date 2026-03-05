@@ -14,15 +14,15 @@ export function PassagePanel({ passage, currentParagraphId }: Props) {
       <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
         Passage
       </div>
-      <div className="max-h-[40vh] space-y-3 overflow-y-auto pr-2 text-[14px] leading-relaxed text-text">
+      <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2 text-[14px] leading-relaxed text-text">
         {passage.paragraphs.map((p) => (
           <p
             key={p.id}
             className={cn(
-              "transition-colors",
+              "transition-all duration-300",
               p.id === currentParagraphId
-                ? "bg-primary/5 rounded-lg px-2 py-1 border border-primary/30"
-                : "text-muted"
+                ? "bg-primary/5 rounded-lg px-2 py-1 border border-primary/30 opacity-100"
+                : "text-muted opacity-50 blur-[2px]"
             )}
           >
             {p.text}

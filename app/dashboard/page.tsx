@@ -92,11 +92,10 @@ export default function DashboardPage() {
           <div className="space-y-2">
             <Badge variant="default">Training journey</Badge>
             <CardTitle className="text-lg text-text">
-              What are you training today?
+              Train your mind for IELTS
             </CardTitle>
             <p className="max-w-xl text-[15px] leading-relaxed text-muted">
-              Pick your skills and complete a short adaptive session—one
-              question at a time, with coach tips and XP.
+              Walk into the exam like you wrote the question paper.
             </p>
           </div>
           <div className="flex flex-col items-stretch gap-3 sm:items-end">
