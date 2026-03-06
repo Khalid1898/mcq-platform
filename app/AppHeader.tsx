@@ -10,6 +10,7 @@ export default function AppHeader() {
 
   const isAttemptRoute = pathname?.startsWith("/attempt/");
   const isResultPage = pathname?.includes("/result");
+  const isReadingTheater = pathname === "/reading/theater";
   const showExitQuiz = Boolean(isAttemptRoute && !isResultPage);
 
   const [showExitModal, setShowExitModal] = useState(false);
@@ -19,6 +20,10 @@ export default function AppHeader() {
     router.push("/quizzes");
     router.refresh();
   };
+
+  if (isReadingTheater) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface">
