@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { RotateCw } from "lucide-react";
+import { Moon, RotateCw, Sun } from "lucide-react";
+import { useTheme } from "@/app/ThemeProvider";
 import type { ReadingPassage } from "@/lib/content/reading";
 
 type Props = {
@@ -45,9 +46,11 @@ const COACH_CARDS: CoachCard[] = [
 ];
 
 export function PassageOnlyView({ passage }: Props) {
+  const { theme, setTheme } = useTheme();
+
   return (
     <div className="w-full px-2 py-4 sm:px-4 md:px-6 lg:px-8">
-      <div className="mb-3 flex items-center justify-between text-xs text-muted">
+      <div className="mb-3 flex items-center justify-between gap-2 text-xs text-muted">
         <Link
           href="/"
           className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:bg-surface"
@@ -55,6 +58,24 @@ export function PassageOnlyView({ passage }: Props) {
           <span>←</span>
           <span>Home</span>
         </Link>
+        <button
+          type="button"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-text shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg dark:border-border dark:bg-surface-2 dark:hover:bg-surface"
+          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {theme === "dark" ? (
+            <>
+              <Sun className="h-4 w-4" />
+              <span>Light mode</span>
+            </>
+          ) : (
+            <>
+              <Moon className="h-4 w-4" />
+              <span>Dark mode</span>
+            </>
+          )}
+        </button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-[minmax(0,0.7fr)_minmax(0,0.3fr)]">
@@ -93,13 +114,13 @@ function FlipCoachCard({ card }: FlipCoachCardProps) {
         flipped ? "is-flipped" : ""
       }`}
     >
-      <div className="flip-card-inner h-full min-h-[180px] w-full rounded-2xl bg-gradient-to-br from-emerald-100 via-emerald-50 to-surface-2 shadow-md">
+      <div className="flip-card-inner h-full min-h-[180px] w-full rounded-2xl border border-border bg-surface shadow-md dark:shadow-none dark:ring-1 dark:ring-border">
         <div className="flip-card-face flip-card-front relative flex h-full flex-col justify-center gap-3 px-4 py-3">
           <div className="text-[13px] font-semibold text-text">
             {card.frontTitle}
           </div>
           <div
-            className="flex shrink-0 items-center gap-2 rounded-lg border-2 border-amber-500 bg-amber-400/90 px-3 py-2 text-amber-900 shadow-md ring-2 ring-amber-500/30"
+            className="flex shrink-0 items-center gap-2 rounded-lg border-2 border-amber-500 bg-amber-400/90 px-3 py-2 text-amber-900 shadow-md ring-2 ring-amber-500/30 dark:border-amber-600 dark:bg-amber-500/20 dark:text-amber-200 dark:ring-amber-500/40"
             aria-hidden="true"
           >
             <RotateCw className="h-5 w-5 shrink-0" strokeWidth={2.5} />
@@ -119,7 +140,7 @@ function FlipCoachCard({ card }: FlipCoachCardProps) {
               e.stopPropagation();
               setFlipped(false);
             }}
-            className="h-12 w-12 shrink-0 rounded-lg bg-green-500 font-semibold text-white shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            className="h-12 w-12 shrink-0 rounded-lg bg-primary font-semibold text-primary-foreground shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
           >
             OK
           </button>

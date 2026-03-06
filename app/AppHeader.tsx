@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "./ThemeProvider";
 
 export default function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   const isAttemptRoute = pathname?.startsWith("/attempt/");
   const isResultPage = pathname?.includes("/result");
@@ -32,13 +35,32 @@ export default function AppHeader() {
           href="/"
           className="flex items-center gap-2.5 text-[15px] font-semibold text-text hover:opacity-85"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-sm font-bold text-primary">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-sm font-bold text-primary dark:bg-emerald-900/60 dark:text-emerald-200">
             BP
           </span>
           <span>IELTS Practice</span>
         </Link>
 
-        {showExitQuiz ? (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-medium text-text shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:border-border dark:bg-surface-2 dark:hover:bg-surface"
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? (
+              <>
+                <Sun className="h-4 w-4" />
+                <span>Light mode</span>
+              </>
+            ) : (
+              <>
+                <Moon className="h-4 w-4" />
+                <span>Dark mode</span>
+              </>
+            )}
+          </button>
+          {showExitQuiz ? (
           <>
             <button
               type="button"
@@ -87,6 +109,7 @@ export default function AppHeader() {
             )}
           </>
         ) : null}
+        </div>
       </div>
     </header>
   );
