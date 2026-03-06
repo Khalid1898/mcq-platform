@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 
@@ -17,6 +17,11 @@ export default function AppHeader() {
   const showExitQuiz = Boolean(isAttemptRoute && !isResultPage);
 
   const [showExitModal, setShowExitModal] = useState(false);
+  const [themeReady, setThemeReady] = useState(false);
+
+  useEffect(() => {
+    setThemeReady(true);
+  }, []);
 
   const goToQuizzes = () => {
     setShowExitModal(false);
@@ -42,73 +47,75 @@ export default function AppHeader() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-medium text-text shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:border-border dark:bg-surface-2 dark:hover:bg-surface"
-            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            {theme === "dark" ? (
-              <>
-                <Sun className="h-4 w-4" />
-                <span>Light mode</span>
-              </>
-            ) : (
-              <>
-                <Moon className="h-4 w-4" />
-                <span>Dark mode</span>
-              </>
-            )}
-          </button>
-          {showExitQuiz ? (
-          <>
+          {themeReady && (
             <button
               type="button"
-              onClick={() => setShowExitModal(true)}
-              className="rounded-xl border-2 border-border bg-surface px-4 py-2 text-sm font-medium text-text shadow-sm hover:bg-surface-2"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-medium text-text shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:border-border dark:bg-surface-2 dark:hover:bg-surface"
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
-              Exit quiz
+              {theme === "dark" ? (
+                <>
+                  <Sun className="h-4 w-4" />
+                  <span>Light mode</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="h-4 w-4" />
+                  <span>Dark mode</span>
+                </>
+              )}
             </button>
-
-            {showExitModal && (
-              <div
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                aria-modal="true"
-                role="dialog"
+          )}
+          {showExitQuiz ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowExitModal(true)}
+                className="rounded-xl border-2 border-border bg-surface px-4 py-2 text-sm font-medium text-text shadow-sm hover:bg-surface-2"
               >
+                Exit quiz
+              </button>
+
+              {showExitModal && (
                 <div
-                  className="absolute inset-0 bg-text/20 backdrop-blur-sm"
-                  onClick={() => setShowExitModal(false)}
-                />
-                <div className="relative w-full max-w-md rounded-xl border border-border bg-surface p-6 shadow-lg">
-                  <div className="mb-2 text-lg font-semibold text-text">
-                    Leave this attempt?
-                  </div>
-                  <div className="text-[15px] leading-relaxed text-muted">
-                    Your progress is saved. You can come back later and continue
-                    this attempt from the Quizzes page.
-                  </div>
-                  <div className="mt-6 flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowExitModal(false)}
-                      className="rounded-xl border-2 border-border px-4 py-2 text-sm font-medium text-text hover:bg-surface-2"
-                    >
-                      Stay
-                    </button>
-                    <button
-                      type="button"
-                      onClick={goToQuizzes}
-                      className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
-                    >
-                      Go to Quizzes
-                    </button>
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                  aria-modal="true"
+                  role="dialog"
+                >
+                  <div
+                    className="absolute inset-0 bg-text/20 backdrop-blur-sm"
+                    onClick={() => setShowExitModal(false)}
+                  />
+                  <div className="relative w-full max-w-md rounded-xl border border-border bg-surface p-6 shadow-lg">
+                    <div className="mb-2 text-lg font-semibold text-text">
+                      Leave this attempt?
+                    </div>
+                    <div className="text-[15px] leading-relaxed text-muted">
+                      Your progress is saved. You can come back later and
+                      continue this attempt from the Quizzes page.
+                    </div>
+                    <div className="mt-6 flex justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowExitModal(false)}
+                        className="rounded-xl border-2 border-border px-4 py-2 text-sm font-medium text-text hover:bg-surface-2"
+                      >
+                        Stay
+                      </button>
+                      <button
+                        type="button"
+                        onClick={goToQuizzes}
+                        className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
+                      >
+                        Go to Quizzes
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </>
-        ) : null}
+              )}
+            </>
+          ) : null}
         </div>
       </div>
     </header>

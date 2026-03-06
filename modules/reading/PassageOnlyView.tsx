@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Moon, RotateCw, Sun } from "lucide-react";
 import { useTheme } from "@/app/ThemeProvider";
 import type { ReadingPassage } from "@/lib/content/reading";
@@ -47,52 +46,64 @@ const COACH_CARDS: CoachCard[] = [
 
 export function PassageOnlyView({ passage }: Props) {
   const { theme, setTheme } = useTheme();
+  const [themeReady, setThemeReady] = useState(false);
+  const [viewReady, setViewReady] = useState(false);
+
+  useEffect(() => {
+    setThemeReady(true);
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => setViewReady(true), 150);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <div className="w-full px-2 py-4 sm:px-4 md:px-6 lg:px-8">
-      <div className="mb-3 flex items-center justify-between gap-2 text-xs text-muted">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:bg-surface"
-        >
-          <span>←</span>
-          <span>Home</span>
-        </Link>
-        <button
-          type="button"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-text shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg dark:border-border dark:bg-surface-2 dark:hover:bg-surface"
-          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          {theme === "dark" ? (
-            <>
-              <Sun className="h-4 w-4" />
-              <span>Light mode</span>
-            </>
-          ) : (
-            <>
-              <Moon className="h-4 w-4" />
-              <span>Dark mode</span>
-            </>
-          )}
-        </button>
+      <div className="mb-3 flex items-center justify-end gap-2 text-xs text-muted">
+        {themeReady && (
+          <button
+            type="button"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-text shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg dark:border-border dark:bg-surface-2 dark:hover:bg-surface"
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? (
+              <>
+                <Sun className="h-4 w-4" />
+                <span>Light mode</span>
+              </>
+            ) : (
+              <>
+                <Moon className="h-4 w-4" />
+                <span>Dark mode</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-[minmax(0,0.7fr)_minmax(0,0.3fr)]">
-        <article>
-          <h1 className="text-lg font-semibold text-text">{passage.title}</h1>
-          <div className="mt-4 space-y-4 text-[15px] leading-relaxed text-text">
-            {passage.paragraphs.map((p) => (
-              <p key={p.id}>{p.text}</p>
-            ))}
-          </div>
-        </article>
+      <div
+        className={`transition-opacity duration-[3000ms] ease-out ${
+          viewReady ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <div className="grid gap-6 md:grid-cols-[minmax(0,0.7fr)_minmax(0,0.3fr)]">
+          <article>
+            <h1 className="text-lg font-semibold text-text">{passage.title}</h1>
+            <div className="mt-4 space-y-4 text-[15px] leading-relaxed text-text">
+              {passage.paragraphs.map((p) => (
+                <p key={p.id}>{p.text}</p>
+              ))}
+            </div>
+          </article>
 
-        <aside className="hidden md:flex max-h-[80vh] flex-col gap-4 overflow-y-auto pr-1">
-          {COACH_CARDS.map((card) => (
-            <FlipCoachCard key={card.id} card={card} />
-          ))}
-        </aside>
+          <aside className="hidden md:flex max-h-[80vh] flex-col gap-4 overflow-y-auto pr-1">
+            {COACH_CARDS.map((card) => (
+              <FlipCoachCard key={card.id} card={card} />
+            ))}
+          </aside>
+        </div>
       </div>
     </div>
   );
@@ -105,6 +116,13 @@ type FlipCoachCardProps = {
 /** 3D flip card: front text → click → flip → back text. See REQUIRED FLIP CARD BEHAVIOUR above. */
 function FlipCoachCard({ card }: FlipCoachCardProps) {
   const [flipped, setFlipped] = useState(false);
+  const [showBackFace, setShowBackFace] = useState(false);
+
+  // Avoid showing the back/OK face in the initial server render,
+  // so we don't flash it on refresh before hydration.
+  useEffect(() => {
+    setShowBackFace(true);
+  }, []);
 
   return (
     <button
@@ -130,21 +148,23 @@ function FlipCoachCard({ card }: FlipCoachCardProps) {
           </div>
         </div>
 
-        <div className="flip-card-face flip-card-back flex h-full flex-col justify-center gap-3 px-4 py-3">
-          <div className="text-[13px] font-semibold text-text">
-            {card.backTitle}
+        {showBackFace && (
+          <div className="flip-card-face flip-card-back flex h-full flex-col justify-center gap-3 px-4 py-3">
+            <div className="text-[13px] font-semibold text-text">
+              {card.backTitle}
+            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFlipped(false);
+              }}
+              className="h-12 w-12 shrink-0 rounded-lg bg-primary font-semibold text-primary-foreground shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
+            >
+              OK
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setFlipped(false);
-            }}
-            className="h-12 w-12 shrink-0 rounded-lg bg-primary font-semibold text-primary-foreground shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
-          >
-            OK
-          </button>
-        </div>
+        )}
       </div>
     </button>
   );
