@@ -21,7 +21,7 @@
     },
     {
       "id": "p5",
-      "text": "Age influences time perception as well. Researchers have observed that children often experience time as moving slowly, whereas older adults frequently describe years as passing rapidly. Some psychologists propose that this occurs because each year represents a smaller proportion of an individual’s life as they grow older. Others argue that reduced novelty in adulthood contributes to the acceleration of perceived time."
+      "text": "Age influences time perception as well. Researchers have observed that children often experience time as moving slowly, whereas older adults frequently describe years as passing rapidly. Some psychologists propose that this occurs because each year represents a smaller proportion of an individual's life as they grow older. Others argue that reduced novelty in adulthood contributes to the acceleration of perceived time."
     },
     {
       "id": "p6",
@@ -42,196 +42,178 @@
       "type": "TFNG",
       "order": 1,
       "paragraphHint": 2,
-      "prompt": "People are always aware of the passage of time when concentrating on tasks.",
+      "prompt": "When people are deeply focused on an activity, they usually become more aware of how much time is passing.",
       "options": ["True", "False", "Not Given"],
-      "correctAnswer": "False",
-      "explanation": "When individuals focus intensely, they direct resources to the task and become less aware of time, so the statement is the opposite of the passage.",
-      "coachTips": {
-        "validates": "Checks your ability to match a factual statement to the passage.",
-        "trap": "Statements that feel generally true but are not stated in this passage.",
-        "mentalModel": "Locate the exact sentence that talks about this idea; do not rely on outside knowledge."
-      }
+      "correctAnswer": "",
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q2",
       "type": "TFNG",
       "order": 2,
       "paragraphHint": 3,
-      "prompt": "Fear can cause people to believe that events are happening more slowly.",
+      "prompt": "In frightening situations, people sometimes perceive events as happening more slowly.",
       "options": ["True", "False", "Not Given"],
-      "correctAnswer": "True",
-      "explanation": "The passage states that in threatening situations people report events seeming to unfold in slow motion.",
-      "coachTips": {
-        "validates": "Distinguishing contradiction from absence of information.",
-        "trap": "Reading too quickly and missing 'not', 'never', or other negations.",
-        "mentalModel": "Ask: does the passage say the opposite, or does it say nothing?"
-      }
+      "correctAnswer": "",
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q3",
       "type": "TFNG",
       "order": 3,
       "paragraphHint": 4,
-      "prompt": "The brain stores every moment of experience with equal detail.",
+      "prompt": "The brain records all experiences with the same level of detail.",
       "options": ["True", "False", "Not Given"],
-      "correctAnswer": "False",
-      "explanation": "The passage explicitly states that the brain does not store every moment equally.",
-      "coachTips": {
-        "validates": "Ability to say 'I don’t know' when the text is silent.",
-        "trap": "Assuming information based on real-world knowledge.",
-        "mentalModel": "If you need to guess beyond the text, it is probably Not Given."
-      }
+      "correctAnswer": "",
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q4",
       "type": "TFNG",
       "order": 4,
       "paragraphHint": 5,
-      "prompt": "Older adults universally experience time more slowly than children.",
+      "prompt": "Some psychologists believe that the proportion of life already lived influences how people perceive time.",
       "options": ["True", "False", "Not Given"],
-      "correctAnswer": "False",
-      "explanation": "The passage contrasts children experiencing time as slow with older adults feeling that years pass rapidly; this is the opposite of the statement.",
-      "coachTips": {
-        "validates": "Checks your ability to reconcile statements about age with the text.",
-        "trap": "Reversing the relationship described between children and older adults.",
-        "mentalModel": "Always match the direction of a comparison (slower vs faster) carefully with the passage."
-      }
+      "correctAnswer": "",
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q5",
-      "type": "MATCHING_INFO",
+      "type": "TFNG",
       "order": 5,
       "paragraphHint": 6,
-      "prompt": "Cultural attitudes toward punctuality may influence time perception.",
+      "prompt": "Cultures that value punctuality may increase people's awareness of time passing.",
       "options": ["True", "False", "Not Given"],
-      "correctAnswer": "True",
-      "explanation": "The passage explains that in punctuality-focused societies time is treated as a limited commodity, which heightens awareness of its passage.",
-      "coachTips": {
-        "validates": "Connects cultural values with subjective time experience.",
-        "trap": "Missing how punctuality and strict scheduling change awareness of time.",
-        "mentalModel": "Look for cause–effect links between cultural norms and perception."
-      }
+      "correctAnswer": "",
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q6",
       "type": "MATCHING_INFO",
       "order": 6,
-      "paragraphHint": 7,
-      "prompt": "A reference to specific brain regions involved in time processing",
-      "options": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4", "Paragraph 5", "Paragraph 6", "Paragraph 7", "Paragraph 8"],
-      "correctAnswer": "Paragraph 7",
-      "explanation": "Paragraph 7 mentions networks in the basal ganglia and prefrontal cortex.",
-      "coachTips": {
-        "validates": "Linking examples to the paragraph that introduces them.",
-        "trap": "Confusing where an idea is mentioned vs. where it is explained.",
-        "mentalModel": "Find where the main claim appears, then check if examples support it."
-      }
+      "paragraphHint": null,
+      "prompt": "A paragraph explaining how new experiences can affect how long a period seems in hindsight.",
+      "options": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "correctAnswer": "",
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q7",
-      "type": "SENTENCE_COMPLETION",
+      "type": "MATCHING_INFO",
       "order": 7,
-      "paragraphHint": 5,
-      "prompt": "An explanation involving proportional lifespan theory",
-      "blanks": ["b1"],
-      "correctAnswer": ["Paragraph 5"],
-      "explanation": "Paragraph 5 explains that each year represents a smaller proportion of an individual's life as they age.",
-      "coachTips": {
-        "validates": "Locating where a theoretical explanation is given.",
-        "trap": "Confusing lifespan proportion theory with novelty explanations.",
-        "mentalModel": "Match conceptual explanations (not just facts) to the paragraph that develops them."
-      }
+      "paragraphHint": null,
+      "prompt": "A paragraph referring to specific parts of the brain related to processing time.",
+      "options": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "correctAnswer": "",
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q8",
       "type": "MATCHING_INFO",
       "order": 8,
-      "paragraphHint": 4,
-      "prompt": "An example of how novelty affects retrospective time perception",
-      "options": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4", "Paragraph 5", "Paragraph 6", "Paragraph 7", "Paragraph 8"],
-      "correctAnswer": "Paragraph 4",
-      "explanation": "Paragraph 4 gives the example of traveling to a new country feeling longer in retrospect because of novel memories.",
-      "coachTips": {
-        "validates": "Connecting examples of novelty to their paragraph.",
-        "trap": "Looking only for the word 'novelty' instead of the example.",
-        "mentalModel": "Use concrete examples (e.g. travel) as anchors for abstract concepts like novelty."
-      }
+      "paragraphHint": null,
+      "prompt": "A paragraph describing how emotional intensity can affect memory formation.",
+      "options": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "correctAnswer": "",
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q9",
       "type": "MATCHING_INFO",
       "order": 9,
-      "paragraphHint": 8,
-      "prompt": "A practical application related to reducing perceived waiting time",
-      "options": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4", "Paragraph 5", "Paragraph 6", "Paragraph 7", "Paragraph 8"],
-      "correctAnswer": "Paragraph 8",
-      "explanation": "Paragraph 8 describes using music or visual engagement to shorten perceived waiting time.",
-      "coachTips": {
-        "validates": "Identifying real-world applications described in the passage.",
-        "trap": "Confusing explanation of mechanisms with applied examples.",
-        "mentalModel": "Look for sentences that start with phrases like 'For example' to find applications."
-      }
+      "paragraphHint": null,
+      "prompt": "A paragraph discussing how social or cultural habits influence the perception of time.",
+      "options": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "correctAnswer": "",
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q10",
-      "type": "TFNG",
+      "type": "SENTENCE_COMPLETION",
       "order": 10,
       "paragraphHint": 2,
-      "prompt": "When people are bored, they become more aware of the __________ of time.",
-      "options": ["True", "False", "Not Given"],
-      "correctAnswer": "passage",
-      "explanation": "Paragraph 2 explains that in boredom people become more aware of the passage of time.",
-      "coachTips": {
-        "validates": "Checking nuanced statements with qualifiers.",
-        "trap": "Missing limiting words like 'some', 'often', 'rarely'.",
-        "mentalModel": "Pay attention to degree words that change the truth of the statement."
-      }
+      "prompt": "When people concentrate on a task, their mental resources are directed toward __________ processing.",
+      "blanks": ["b1"],
+      "correctAnswer": [""],
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q11",
-      "type": "TFNG",
+      "type": "SENTENCE_COMPLETION",
       "order": 11,
       "paragraphHint": 3,
-      "prompt": "Emotionally intense events are encoded into memory with greater __________.",
-      "options": [],
-      "correctAnswer": "detail",
-      "explanation": "Paragraph 3 says emotionally intense events are encoded with greater detail.",
-      "coachTips": {
-        "validates": "Precise lifting of a key noun from the passage.",
-        "trap": "Paraphrasing instead of using the exact word from the text.",
-        "mentalModel": "Locate the clause that directly follows the idea in the question stem."
-      }
+      "prompt": "During emotionally intense experiences, memories may contain more __________.",
+      "blanks": ["b1"],
+      "correctAnswer": [""],
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q12",
       "type": "SENTENCE_COMPLETION",
       "order": 12,
       "paragraphHint": 4,
-      "prompt": "Routine activities produce fewer distinctive memory __________.",
+      "prompt": "Routine activities create fewer distinctive memory __________.",
       "blanks": ["b1"],
-      "correctAnswer": ["markers"],
-      "explanation": "Paragraph 4 states that routine activities generate fewer distinctive memory markers.",
-      "coachTips": {
-        "validates": "Detail retrieval from a contrast example.",
-        "trap": "Confusing 'memories' with 'memory markers'.",
-        "mentalModel": "Use the exact technical term when the passage introduces one."
-      }
+      "correctAnswer": [""],
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
     },
     {
       "id": "q13",
       "type": "SENTENCE_COMPLETION",
       "order": 13,
-      "paragraphHint": 6,
-      "prompt": "In some cultures, time is treated as a limited __________.",
+      "paragraphHint": 8,
+      "prompt": "Reducing boredom in waiting environments may decrease the __________ waiting time.",
       "blanks": ["b1"],
-      "correctAnswer": ["commodity"],
-      "explanation": "Paragraph 6 explicitly describes time as a limited commodity in punctuality-focused societies.",
-      "coachTips": {
-        "validates": "Reading for key metaphorical nouns used to describe time.",
-        "trap": "Replacing the economic metaphor with a more general word like 'resource'.",
-        "mentalModel": "When the passage uses a metaphor (time as a commodity), expect it to be a sentence-completion target."
-      }
+      "correctAnswer": [""],
+      "explanation": "",
+      "coachTips": { "validates": "", "trap": "", "mentalModel": "" }
+    }
+  ],
+  "questionSections": [
+    {
+      "startOrder": 1,
+      "endOrder": 5,
+      "title": "Questions 1–5",
+      "subtitle": "TRUE / FALSE / NOT GIVEN",
+      "instructions": [
+        "Write:",
+        "TRUE if the statement agrees with the passage",
+        "FALSE if the statement contradicts the passage",
+        "NOT GIVEN if there is no information about this in the passage"
+      ]
+    },
+    {
+      "startOrder": 6,
+      "endOrder": 9,
+      "title": "Questions 6–9",
+      "subtitle": "Matching Information",
+      "instructions": [
+        "Look at the following statements (Questions 6–9) and the list of paragraphs below.",
+        "Match each statement with the correct paragraph (A–H).",
+        "Write the correct letter A–H."
+      ]
+    },
+    {
+      "startOrder": 10,
+      "endOrder": 13,
+      "title": "Questions 10–13",
+      "subtitle": "Sentence Completion",
+      "instructions": [
+        "Complete the sentences below.",
+        "Choose NO MORE THAN TWO WORDS from the passage."
+      ]
     }
   ]
 }
-
