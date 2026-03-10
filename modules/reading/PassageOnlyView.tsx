@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Check, Moon, RotateCw, Sun, X } from "lucide-react";
 import { useTheme } from "@/app/ThemeProvider";
 import { Input } from "@/components/ui/input";
+import { WordLookupPopup } from "@/components/WordLookupPopup";
 import type {
   ReadingPassage,
   ReadingQuestion,
@@ -55,6 +56,27 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
   const { theme, setTheme } = useTheme();
   const [themeReady, setThemeReady] = useState(false);
   const [viewReady, setViewReady] = useState(false);
+  const [fontScale, setFontScale] = useState(1);
+  const [highlightedParagraphId, setHighlightedParagraphId] = useState<
+    string | null
+  >(null);
+  const [lookupState, setLookupState] = useState<{
+    word: string;
+    definition: string;
+    synonyms: string[];
+    x: number;
+    y: number;
+    open: boolean;
+    loading: boolean;
+  }>({
+    word: "",
+    definition: "",
+    synonyms: [],
+    x: 0,
+    y: 0,
+    open: false,
+    loading: false,
+  });
 
   useEffect(() => {
     setThemeReady(true);
@@ -65,29 +87,132 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("reading-font-scale");
+    if (!stored) return;
+    const parsed = Number(stored);
+    if (!Number.isNaN(parsed) && parsed >= 0.85 && parsed <= 1.4) {
+      setFontScale(parsed);
+    }
+  }, []);
+
+  const updateFontScale = (next: number) => {
+    const clamped = Math.min(1.4, Math.max(0.85, next));
+    setFontScale(clamped);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        "reading-font-scale",
+        String(clamped.toFixed(2))
+      );
+    }
+  };
+
+  const handleWordLookup = async (word: string, x: number, y: number) => {
+    const cleaned = word.trim().replace(/^[^A-Za-z']+|[^A-Za-z']+$/g, "");
+    if (!cleaned) return;
+
+    setLookupState((prev) => ({
+      ...prev,
+      word: cleaned,
+      definition: "",
+      synonyms: [],
+      x,
+      y,
+      open: true,
+      loading: true,
+    }));
+
+    try {
+      const res = await fetch(
+        `/api/dictionary?word=${encodeURIComponent(cleaned)}`,
+        { cache: "no-store" }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(
+          (data && (data.debug || data.error || data.message)) ||
+            `Lookup failed with status ${res.status}`
+        );
+      }
+      setLookupState((prev) => ({
+        ...prev,
+        definition: data.definition ?? "",
+        synonyms: Array.isArray(data.synonyms) ? data.synonyms : [],
+        loading: false,
+      }));
+    } catch (error) {
+      console.error("Word lookup failed on client", error);
+      setLookupState((prev) => ({
+        ...prev,
+        definition:
+          error instanceof Error
+            ? error.message
+            : "There was a problem looking up this word locally.",
+        synonyms: [],
+        loading: false,
+      }));
+    }
+  };
+
   return (
     <div className="w-full px-2 py-4 sm:px-4 md:px-6 lg:px-8">
-      <div className="mb-3 flex items-center justify-end gap-2 text-xs text-muted">
-        {themeReady && (
-          <button
-            type="button"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-text shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg dark:border-border dark:bg-surface-2 dark:hover:bg-surface"
-            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            {theme === "dark" ? (
-              <>
-                <Sun className="h-4 w-4" />
-                <span>Light mode</span>
-              </>
-            ) : (
-              <>
-                <Moon className="h-4 w-4" />
-                <span>Dark mode</span>
-              </>
-            )}
-          </button>
-        )}
+      <div className="mb-3 flex items-center justify-between gap-2 text-xs text-muted">
+        <div className="flex items-center gap-1.5">
+          <span className="hidden sm:inline text-[11px]">Text size</span>
+          <div className="inline-flex items-center gap-0.5 rounded-xl border border-border bg-surface px-1 py-0.5 shadow-sm">
+            <button
+              type="button"
+              onClick={() => updateFontScale(fontScale - 0.1)}
+              className="inline-flex h-6 w-6 items-center justify-center rounded-lg text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-1 focus:ring-ring"
+              aria-label="Decrease text size"
+            >
+              A-
+            </button>
+            <div className="h-4 w-px bg-border/70" />
+            <button
+              type="button"
+              onClick={() => updateFontScale(1)}
+              className="inline-flex h-6 w-8 items-center justify-center rounded-lg text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-1 focus:ring-ring"
+              aria-label="Reset text size"
+            >
+              A
+            </button>
+            <div className="h-4 w-px bg-border/70" />
+            <button
+              type="button"
+              onClick={() => updateFontScale(fontScale + 0.1)}
+              className="inline-flex h-6 w-6 items-center justify-center rounded-lg text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-1 focus:ring-ring"
+              aria-label="Increase text size"
+            >
+              A+
+            </button>
+          </div>
+        </div>
+        <div className="flex items-center justify-end gap-2 text-xs text-muted">
+          {themeReady && (
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-text shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg dark:border-border dark:bg-surface-2 dark:hover:bg-surface"
+              aria-label={
+                theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+              }
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun className="h-4 w-4" />
+                  <span>Light mode</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="h-4 w-4" />
+                  <span>Dark mode</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       <div
@@ -96,12 +221,33 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
         }`}
       >
         <div className="grid gap-6 md:grid-cols-[minmax(0,0.7fr)_minmax(0,0.3fr)]">
-          <article>
+          <article
+            onDoubleClick={(event) => {
+              const selection = window.getSelection();
+              const text = selection ? selection.toString() : "";
+              if (!text.trim()) return;
+              handleWordLookup(text, event.clientX, event.clientY);
+            }}
+          >
             <h1 className="text-lg font-semibold text-text">{passage.title}</h1>
-            <div className="mt-4 space-y-4 text-[15px] leading-relaxed text-text">
-              {passage.paragraphs.map((p) => (
-                <p key={p.id}>{p.text}</p>
-              ))}
+            <div className="mt-4 space-y-4 leading-relaxed text-text">
+              {passage.paragraphs.map((p, index) => {
+                const isHighlighted = highlightedParagraphId === p.id;
+                return (
+                  <p
+                    key={p.id}
+                    id={`passage-paragraph-${p.id}`}
+                    className={`rounded-md px-1 transition-colors ${
+                      isHighlighted ? "paragraph-highlight-flash" : ""
+                    }`}
+                    style={{
+                      fontSize: `${15 * fontScale}px`,
+                    }}
+                  >
+                    {p.text}
+                  </p>
+                );
+              })}
             </div>
           </article>
 
@@ -115,6 +261,28 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
               const cardQuestions = passage.questions.filter(
                 (q) => q.order >= startOrder && q.order <= endOrder
               );
+              const handleHighlightParagraph = (paragraphHint?: number) => {
+                if (!paragraphHint) return;
+                const idx = paragraphHint - 1; // paragraphHint is 1-based
+                const target = passage.paragraphs[idx];
+                if (!target) return;
+
+                setHighlightedParagraphId(target.id);
+
+                const el = document.getElementById(
+                  `passage-paragraph-${target.id}`
+                );
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+
+                window.setTimeout(() => {
+                  setHighlightedParagraphId((current) =>
+                    current === target.id ? null : current
+                  );
+                }, 1200);
+              };
+
               return (
                 <div key={card.id} className="w-full shrink-0">
                   <FlipCoachCard
@@ -124,6 +292,8 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                     }
                     section={section ?? undefined}
                     correctAnswers={correctAnswers}
+                    onHighlightParagraph={handleHighlightParagraph}
+                    fontScale={fontScale}
                   />
                 </div>
               );
@@ -131,6 +301,22 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
           </aside>
         </div>
       </div>
+      {lookupState.open && (
+        <WordLookupPopup
+          word={lookupState.word}
+          definition={
+            lookupState.loading && !lookupState.definition
+              ? "Looking up word..."
+              : lookupState.definition || "No definition found."
+          }
+          synonyms={lookupState.synonyms}
+          x={lookupState.x}
+          y={lookupState.y}
+          onClose={() =>
+            setLookupState((prev) => ({ ...prev, open: false }))
+          }
+        />
+      )}
     </div>
   );
 }
@@ -142,6 +328,10 @@ type FlipCoachCardProps = {
   section?: ReadingQuestionSection;
   /** Question order → correct answer; used for immediate green/red feedback. */
   correctAnswers?: Record<number, string>;
+  /** Highlight a passage paragraph using its 1-based paragraphHint (if available). */
+  onHighlightParagraph?: (paragraphHint?: number) => void;
+  /** Font scale factor shared with the passage for comfortable reading. */
+  fontScale?: number;
 };
 
 /** Returns whether user answer matches correct answer (case-insensitive for TFNG and sentence completion). */
@@ -159,12 +349,46 @@ function isAnswerCorrect(
   return u === c; // MATCHING_INFO: exact (letter)
 }
 
+/** Plain-English explanation for each TFNG question (1–5) on the diagnosis back. */
+const DIAGNOSIS_PLAIN_ENGLISH: Record<
+  number,
+  { question: string; options?: string[] }
+> = {
+  1: {
+    question:
+      "When people concentrate deeply on a task, do they notice time more or less?",
+    options: ["More", "Less", "Not mentioned"],
+  },
+  2: {
+    question:
+      "When people feel fear or excitement, can events feel like they are happening in slow motion?",
+    options: ["Yes", "No", "The passage doesn't say"],
+  },
+  3: {
+    question:
+      "Does the brain store all experiences in memory with equal detail?",
+    options: ["Yes", "No", "The passage doesn't say"],
+  },
+  4: {
+    question:
+      "Do some psychologists think that time feels faster as we get older because each year becomes a smaller part of our life?",
+    options: ["Yes", "No", "The passage doesn't say"],
+  },
+  5: {
+    question:
+      "In cultures where punctuality is very important, do people become more aware of time passing?",
+    options: ["Yes", "No", "The passage doesn't say"],
+  },
+};
+
 /** 3D flip card: front text → click → flip → back text. See REQUIRED FLIP CARD BEHAVIOUR above. */
 function FlipCoachCard({
   card,
   questions,
   section,
   correctAnswers,
+  onHighlightParagraph,
+  fontScale,
 }: FlipCoachCardProps) {
   const [flipped, setFlipped] = useState(false);
   const [showBackFace, setShowBackFace] = useState(false);
@@ -180,7 +404,14 @@ function FlipCoachCard({
   }, []);
 
   const hasQuestions = questions && questions.length > 0;
-  const q1 = questions?.find((q) => q.order === 1);
+  const scale = fontScale ?? 1;
+  const diagnosisQuestion =
+    diagnoseQuestionOrder != null
+      ? questions?.find((q) => q.order === diagnoseQuestionOrder)
+      : null;
+  const showDiagnosisBack =
+    diagnoseQuestionOrder != null &&
+    (questions?.some((q) => q.order === diagnoseQuestionOrder) ?? false);
 
   const setAnswer = (questionId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
@@ -189,11 +420,13 @@ function FlipCoachCard({
   const handleAnswerSelect = (q: ReadingQuestion, value: string) => {
     setAnswer(q.id, value);
     if (
-      q.order === 1 &&
-      correctAnswers?.[1] &&
-      !isAnswerCorrect(q.type, value, correctAnswers[1])
+      q.type === "TFNG" &&
+      q.order >= 1 &&
+      q.order <= 5 &&
+      correctAnswers?.[q.order] &&
+      !isAnswerCorrect(q.type, value, correctAnswers[q.order])
     ) {
-      setDiagnoseQuestionOrder(1);
+      setDiagnoseQuestionOrder(q.order);
       setFlipped(true);
     }
   };
@@ -218,7 +451,10 @@ function FlipCoachCard({
         >
           {hasQuestions ? (
             <>
-              <div className="flex flex-col gap-2 pr-1 text-[12px] leading-relaxed text-text">
+              <div
+                className="flex flex-col gap-2 pr-1 leading-relaxed text-text"
+                style={{ fontSize: `${12 * scale}px` }}
+              >
                 {section ? (
                   <>
                     <h3 className="text-[14px] font-semibold text-text">
@@ -245,7 +481,7 @@ function FlipCoachCard({
                         return (
                         <div key={q.id} className="flex flex-col gap-2">
                           <div className="flex items-start justify-between gap-2">
-                            <p className="min-w-0 flex-1 text-[12px] leading-relaxed text-text">
+                            <p className="min-w-0 flex-1 leading-relaxed text-text">
                               <span className="font-semibold">{q.order}.</span>{" "}
                               {q.prompt}
                             </p>
@@ -274,7 +510,9 @@ function FlipCoachCard({
                                       key={opt}
                                       type="button"
                                       onClick={() =>
-                                        q.order === 1
+                                        q.type === "TFNG" &&
+                                        q.order >= 1 &&
+                                        q.order <= 5
                                           ? handleAnswerSelect(q, opt)
                                           : setAnswer(q.id, opt)
                                       }
@@ -395,7 +633,9 @@ function FlipCoachCard({
                                       key={opt}
                                       type="button"
                                       onClick={() =>
-                                        q.order === 1
+                                        q.type === "TFNG" &&
+                                        q.order >= 1 &&
+                                        q.order <= 5
                                           ? handleAnswerSelect(q, opt)
                                           : setAnswer(q.id, opt)
                                       }
@@ -497,55 +737,81 @@ function FlipCoachCard({
             className="flip-card-face flip-card-back flex flex-col gap-3 overflow-y-auto px-4 py-3"
             onClick={(e) => e.stopPropagation()}
           >
-            {diagnoseQuestionOrder === 1 ? (
+            {showDiagnosisBack && diagnosisQuestion ? (
               <>
-                {q1 && (
-                  <div className="shrink-0 rounded-lg border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-[11px] dark:border-amber-500/40 dark:bg-amber-500/15">
-                    <p className="font-semibold text-text">Question 1</p>
-                    <p className="mt-0.5 leading-relaxed text-text">
-                      {q1.prompt}
-                    </p>
-                    <p className="mt-1 text-muted">
-                      Your answer: {answers[q1.id] ?? "—"}
-                    </p>
-                    <p className="mt-1 font-medium text-amber-700 dark:text-amber-300">
-                      Let's diagnose the mistake.
-                    </p>
-                  </div>
-                )}
+                <div className="shrink-0 rounded-lg border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-[11px] dark:border-amber-500/40 dark:bg-amber-500/15">
+                  <p className="font-semibold text-text">
+                    Question {diagnosisQuestion.order}
+                  </p>
+                  <p className="mt-0.5 leading-relaxed text-text">
+                    {diagnosisQuestion.prompt}
+                  </p>
+                  <p className="mt-1 text-muted">
+                    Your answer: {answers[diagnosisQuestion.id] ?? "—"}
+                  </p>
+                  <p className="mt-1 font-medium text-amber-700 dark:text-amber-300">
+                    Let's diagnose the mistake.
+                  </p>
+                </div>
                 <div className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-[11px] text-text">
                   <p className="font-semibold text-text">
                     What does the question mean in plain English?
                   </p>
                   <p className="mt-1">
-                    When people concentrate deeply on a task, do they notice
-                    time more or less?
+                    {DIAGNOSIS_PLAIN_ENGLISH[diagnosisQuestion.order]?.question ??
+                      "Re-read the related paragraph and check whether the statement agrees with, contradicts, or is not mentioned in the passage."}
                   </p>
-                  <div className="mt-2 space-y-0.5 pl-1">
-                    <p>More</p>
-                    <p>Less</p>
-                    <p>Not mentioned</p>
-                  </div>
+                  {(DIAGNOSIS_PLAIN_ENGLISH[diagnosisQuestion.order]?.options
+                    ?.length ?? 0) > 0 && (
+                    <div className="mt-2 space-y-0.5 pl-1">
+                      {DIAGNOSIS_PLAIN_ENGLISH[
+                        diagnosisQuestion.order
+                      ]?.options?.map((opt, i) => (
+                        <p key={i}>{opt}</p>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Clear Q1 answer so the learner can retry.
-                    setAnswers((prev) =>
-                      q1 ? { ...prev, [q1.id]: "" } : prev
-                    );
-                    setDiagnoseQuestionOrder(null);
-                    setFlipped(false);
-                  }}
-                  className="shrink-0 self-start rounded-lg bg-primary px-4 py-2 text-[12px] font-semibold text-primary-foreground shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
-                >
-                  Retry this question
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (
+                        diagnosisQuestion.paragraphHint &&
+                        onHighlightParagraph
+                      ) {
+                        onHighlightParagraph(diagnosisQuestion.paragraphHint);
+                      }
+                    }}
+                    className="shrink-0 rounded-lg border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
+                  >
+                    Show related paragraph
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAnswers((prev) =>
+                        diagnosisQuestion
+                          ? { ...prev, [diagnosisQuestion.id]: "" }
+                          : prev
+                      );
+                      setDiagnoseQuestionOrder(null);
+                      setFlipped(false);
+                    }}
+                    className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-[11px] font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
+                  >
+                    Retry
+                  </button>
+                </div>
               </>
             ) : (
               <>
-                <div className="text-[13px] font-semibold text-text">
+                <div
+                  className="text-[13px] font-semibold text-text"
+                  style={{ fontSize: `${13 * scale}px` }}
+                >
                   {card.backTitle}
                 </div>
                 <button

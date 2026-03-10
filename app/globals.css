@@ -84,6 +84,22 @@ body {
   transform: rotateY(-180deg);
 }
 
+@keyframes highlight-flash {
+  0% {
+    background-color: transparent;
+  }
+  20% {
+    background-color: rgba(148, 163, 184, 0.35); /* slate-400/35 */
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.paragraph-highlight-flash {
+  animation: highlight-flash 1.2s ease-out;
+}
+
 /* First card with questions: inner and front face in flow so card reserves full height and cards below are pushed down */
 .flip-card-inner.expand-height {
   height: auto !important;
