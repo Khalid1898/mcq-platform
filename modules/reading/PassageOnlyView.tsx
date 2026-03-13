@@ -78,6 +78,18 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
     loading: false,
   });
 
+  const [translationState, setTranslationState] = useState<{
+    questionOrder: number | null;
+    text: string;
+    translatedText: string;
+    loading: boolean;
+  }>({
+    questionOrder: null,
+    text: "",
+    translatedText: "",
+    loading: false,
+  });
+
   useEffect(() => {
     setThemeReady(true);
   }, []);
@@ -283,6 +295,53 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                 }, 1200);
               };
 
+              const handleRequestTranslation = (questionOrder: number) => {
+                const q = passage.questions.find(
+                  (qq) => qq.order === questionOrder
+                );
+                if (!q || q.paragraphHint == null) return;
+
+                // Highlight the related paragraph as part of translation flow.
+                handleHighlightParagraph(q.paragraphHint);
+
+                const idx = q.paragraphHint - 1;
+                const para = passage.paragraphs[idx];
+                if (!para) return;
+                setTranslationState({
+                  questionOrder,
+                  text: para.text,
+                  translatedText: "",
+                  loading: true,
+                });
+                void (async () => {
+                  try {
+                    const res = await fetch("/api/translate", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        text: para.text,
+                        sourceLang: "en",
+                        // TODO: choose based on user-native language later.
+                        targetLang: "bn",
+                      }),
+                    });
+                    const data = await res.json();
+                    setTranslationState((prev) => ({
+                      ...prev,
+                      translatedText: data.translatedText ?? "",
+                      loading: false,
+                    }));
+                  } catch {
+                    setTranslationState((prev) => ({
+                      ...prev,
+                      translatedText:
+                        "There was a problem translating this paragraph.",
+                      loading: false,
+                    }));
+                  }
+                })();
+              };
+
               return (
                 <div key={card.id} className="w-full shrink-0">
                   <FlipCoachCard
@@ -294,6 +353,12 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                     correctAnswers={correctAnswers}
                     onHighlightParagraph={handleHighlightParagraph}
                     fontScale={fontScale}
+                    onRequestTranslation={handleRequestTranslation}
+                    translationState={{
+                      questionOrder: translationState.questionOrder,
+                      translatedText: translationState.translatedText,
+                      loading: translationState.loading,
+                    }}
                   />
                 </div>
               );
@@ -332,6 +397,14 @@ type FlipCoachCardProps = {
   onHighlightParagraph?: (paragraphHint?: number) => void;
   /** Font scale factor shared with the passage for comfortable reading. */
   fontScale?: number;
+  /** Trigger a translation of a specific question's paragraph text (by order). */
+  onRequestTranslation?: (questionOrder: number) => void;
+  /** Current translation state for the passage, used to show translation on the back. */
+  translationState?: {
+    questionOrder: number | null;
+    translatedText: string;
+    loading: boolean;
+  };
 };
 
 /** Returns whether user answer matches correct answer (case-insensitive for TFNG and sentence completion). */
@@ -389,6 +462,8 @@ function FlipCoachCard({
   correctAnswers,
   onHighlightParagraph,
   fontScale,
+  onRequestTranslation,
+  translationState,
 }: FlipCoachCardProps) {
   const [flipped, setFlipped] = useState(false);
   const [showBackFace, setShowBackFace] = useState(false);
@@ -432,9 +507,16 @@ function FlipCoachCard({
   };
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => setFlipped((prev) => !prev)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setFlipped((prev) => !prev);
+        }
+      }}
       className={`flip-card group relative w-full cursor-pointer rounded-2xl bg-transparent p-0 text-left ${
         hasQuestions ? "block h-auto min-h-[180px]" : "min-h-[180px]"
       } ${flipped ? "is-flipped" : ""}`}
@@ -792,6 +874,18 @@ function FlipCoachCard({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (onRequestTranslation && diagnosisQuestion.order) {
+                        onRequestTranslation(diagnosisQuestion.order);
+                      }
+                    }}
+                    className="shrink-0 rounded-lg border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
+                  >
+                    Translate paragraph
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setAnswers((prev) =>
                         diagnosisQuestion
                           ? { ...prev, [diagnosisQuestion.id]: "" }
@@ -805,6 +899,19 @@ function FlipCoachCard({
                     Retry
                   </button>
                 </div>
+                {translationState &&
+                  translationState.questionOrder ===
+                    diagnosisQuestion.order && (
+                    <div className="mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2 text-[11px] leading-relaxed text-text">
+                      <p className="font-semibold text-text">Translation</p>
+                      <p className="mt-1 text-muted">
+                        {translationState.loading
+                          ? "Translating paragraph..."
+                          : translationState.translatedText ||
+                            "No translation available."}
+                      </p>
+                    </div>
+                  )}
               </>
             ) : (
               <>
@@ -829,6 +936,6 @@ function FlipCoachCard({
           </div>
         )}
       </div>
-    </button>
+    </div>
   );
 }
