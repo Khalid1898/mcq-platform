@@ -7,6 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { usePathname } from "next/navigation";
 
 type Theme = "light" | "dark";
 
@@ -17,6 +18,15 @@ const ThemeContext = createContext<{
 
 const STORAGE_KEY = "mcq-theme";
 
+function isPracticePath(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return (
+    pathname.startsWith("/reading") ||
+    pathname.startsWith("/attempt") ||
+    pathname.startsWith("/practice")
+  );
+}
+
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "light";
   const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
@@ -26,16 +36,20 @@ function getInitialTheme(): Theme {
     : "light";
 }
 
-function applyTheme(theme: Theme) {
+function applyTheme(theme: Theme, pathname: string | null) {
   const root = document.documentElement;
-  if (theme === "dark") root.classList.add("dark");
-  else root.classList.remove("dark");
+  if (theme === "dark" && isPracticePath(pathname)) {
+    root.classList.add("dark");
+  } else {
+    root.classList.remove("dark");
+  }
   localStorage.setItem(STORAGE_KEY, theme);
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setThemeState(getInitialTheme());
@@ -44,12 +58,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!mounted) return;
-    applyTheme(theme);
-  }, [mounted, theme]);
+    applyTheme(theme, pathname ?? null);
+  }, [mounted, theme, pathname]);
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next);
-    applyTheme(next);
   }, []);
 
   return (

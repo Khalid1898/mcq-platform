@@ -60,6 +60,15 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
   const [highlightedParagraphId, setHighlightedParagraphId] = useState<
     string | null
   >(null);
+  const [simpleEnglishParagraphId, setSimpleEnglishParagraphId] = useState<
+    string | null
+  >(null);
+  const [translationParagraphId, setTranslationParagraphId] = useState<
+    string | null
+  >(null);
+  const [viewRelatedParagraphId, setViewRelatedParagraphId] = useState<
+    string | null
+  >(null);
   const [lookupState, setLookupState] = useState<{
     word: string;
     definition: string;
@@ -244,18 +253,35 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
             <h1 className="text-lg font-semibold text-text">{passage.title}</h1>
             <div className="mt-4 space-y-4 leading-relaxed text-text">
               {passage.paragraphs.map((p, index) => {
-                const isHighlighted = highlightedParagraphId === p.id;
+                const isFlashHighlighted = highlightedParagraphId === p.id;
+                const isSimpleHighlighted = simpleEnglishParagraphId === p.id;
+                const isTranslationHighlighted = translationParagraphId === p.id;
+                const isViewRelatedHighlighted =
+                  viewRelatedParagraphId === p.id;
+                const isLinkedHighlighted =
+                  isSimpleHighlighted ||
+                  isTranslationHighlighted ||
+                  isViewRelatedHighlighted;
                 return (
                   <p
                     key={p.id}
                     id={`passage-paragraph-${p.id}`}
-                    className={`rounded-md px-1 transition-colors ${
-                      isHighlighted ? "paragraph-highlight-flash" : ""
+                    className={`relative rounded-md px-1 transition-colors ${
+                      isFlashHighlighted ? "paragraph-highlight-flash" : ""
+                    } ${
+                      isLinkedHighlighted
+                        ? "bg-surface-2/80 border-l-2 border-primary/70 pl-2 dark:bg-surface-2/60"
+                        : ""
                     }`}
                     style={{
                       fontSize: `${15 * fontScale}px`,
                     }}
                   >
+                    {isLinkedHighlighted && (
+                      <span className="mr-1 inline-block align-middle text-[13px] font-semibold text-primary">
+                        →
+                      </span>
+                    )}
                     {p.text}
                   </p>
                 );
@@ -296,6 +322,21 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
               };
 
               const handleRequestTranslation = (questionOrder: number) => {
+                // Toggle off: if this question's translation is already visible and not loading, hide it.
+                if (
+                  translationState.questionOrder === questionOrder &&
+                  !translationState.loading
+                ) {
+                  setTranslationState({
+                    questionOrder: null,
+                    text: "",
+                    translatedText: "",
+                    loading: false,
+                  });
+                  setTranslationParagraphId(null);
+                  return;
+                }
+
                 const q = passage.questions.find(
                   (qq) => qq.order === questionOrder
                 );
@@ -307,6 +348,7 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                 const idx = q.paragraphHint - 1;
                 const para = passage.paragraphs[idx];
                 if (!para) return;
+                setTranslationParagraphId(para.id);
                 setTranslationState({
                   questionOrder,
                   text: para.text,
@@ -342,6 +384,67 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                 })();
               };
 
+              const getSimpleParagraphText = (paragraphHint: number): string | null => {
+                const idx = paragraphHint - 1;
+                const source =
+                  passage.simpleParagraphs && passage.simpleParagraphs.length > idx
+                    ? passage.simpleParagraphs
+                    : passage.paragraphs;
+                const para = source[idx];
+                return para?.text ?? null;
+              };
+
+              const handleSimpleEnglishParagraphHintChange = (
+                paragraphHint: number | null
+              ) => {
+                if (paragraphHint == null) {
+                  setSimpleEnglishParagraphId(null);
+                  return;
+                }
+                const idx = paragraphHint - 1;
+                const basePara = passage.paragraphs[idx];
+                setSimpleEnglishParagraphId(basePara?.id ?? null);
+              };
+
+              const handleViewRelatedParagraphToggle = (paragraphHint: number) => {
+                const idx = paragraphHint - 1;
+                const target = passage.paragraphs[idx];
+                if (!target) return;
+                if (viewRelatedParagraphId === target.id) {
+                  setViewRelatedParagraphId(null);
+                  return;
+                }
+                setViewRelatedParagraphId(target.id);
+                const el = document.getElementById(
+                  `passage-paragraph-${target.id}`
+                );
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+                setHighlightedParagraphId(target.id);
+                window.setTimeout(() => {
+                  setHighlightedParagraphId((current) =>
+                    current === target.id ? null : current
+                  );
+                }, 1200);
+              };
+
+              const isViewRelatedActiveForHint = (hint: number) => {
+                const p = passage.paragraphs[hint - 1];
+                return p ? viewRelatedParagraphId === p.id : false;
+              };
+
+              const handleRetry = () => {
+                setViewRelatedParagraphId(null);
+                setTranslationParagraphId(null);
+                setTranslationState({
+                  questionOrder: null,
+                  text: "",
+                  translatedText: "",
+                  loading: false,
+                });
+              };
+
               return (
                 <div key={card.id} className="w-full shrink-0">
                   <FlipCoachCard
@@ -359,6 +462,13 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                       translatedText: translationState.translatedText,
                       loading: translationState.loading,
                     }}
+                    getSimpleParagraphText={getSimpleParagraphText}
+                    onSimpleEnglishParagraphHintChange={
+                      handleSimpleEnglishParagraphHintChange
+                    }
+                    onViewRelatedParagraphToggle={handleViewRelatedParagraphToggle}
+                    isViewRelatedActive={isViewRelatedActiveForHint}
+                    onRetry={handleRetry}
                   />
                 </div>
               );
@@ -405,6 +515,16 @@ type FlipCoachCardProps = {
     translatedText: string;
     loading: boolean;
   };
+  /** Return the simple-English text for a paragraphHint (1-based), if available. */
+  getSimpleParagraphText?: (paragraphHint: number) => string | null;
+  /** Notify parent which paragraph (by 1-based hint) the simple-English version is showing for, or null to clear. */
+  onSimpleEnglishParagraphHintChange?: (paragraphHint: number | null) => void;
+  /** Toggle persistent arrow+highlight for the related paragraph (view related). */
+  onViewRelatedParagraphToggle?: (paragraphHint: number) => void;
+  /** Whether the given paragraph hint is currently "view related" highlighted. */
+  isViewRelatedActive?: (paragraphHint: number) => boolean;
+  /** Called when user clicks Retry; parent can clear view-related/translation state. */
+  onRetry?: () => void;
 };
 
 /** Returns whether user answer matches correct answer (case-insensitive for TFNG and sentence completion). */
@@ -464,6 +584,11 @@ function FlipCoachCard({
   fontScale,
   onRequestTranslation,
   translationState,
+  getSimpleParagraphText,
+  onSimpleEnglishParagraphHintChange,
+  onViewRelatedParagraphToggle,
+  isViewRelatedActive,
+  onRetry,
 }: FlipCoachCardProps) {
   const [flipped, setFlipped] = useState(false);
   const [showBackFace, setShowBackFace] = useState(false);
@@ -471,6 +596,8 @@ function FlipCoachCard({
   const [diagnoseQuestionOrder, setDiagnoseQuestionOrder] = useState<
     number | null
   >(null);
+  const [showSimpleEnglish, setShowSimpleEnglish] = useState(false);
+  const [simpleEnglishText, setSimpleEnglishText] = useState<string>("");
 
   // Avoid showing the back/OK face in the initial server render,
   // so we don't flash it on refresh before hydration.
@@ -816,7 +943,7 @@ function FlipCoachCard({
 
         {showBackFace && showDiagnosisBack && diagnosisQuestion && (
           <div
-            className="flip-card-face flip-card-back flex flex-col gap-3 overflow-y-auto px-4 py-3"
+            className="flip-card-face flip-card-back flex min-w-0 flex-col gap-3 overflow-y-auto overflow-x-hidden px-4 py-3"
             onClick={(e) => e.stopPropagation()}
           >
             <>
@@ -834,7 +961,7 @@ function FlipCoachCard({
                     Let's diagnose the mistake.
                   </p>
                 </div>
-                <div className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-[11px] text-text">
+                <div className="min-w-0 rounded-lg border border-border bg-surface-2 px-3 py-2 text-[11px] text-text">
                   <p className="font-semibold text-text">
                     What does the question mean in plain English?
                   </p>
@@ -844,30 +971,104 @@ function FlipCoachCard({
                   </p>
                   {(DIAGNOSIS_PLAIN_ENGLISH[diagnosisQuestion.order]?.options
                     ?.length ?? 0) > 0 && (
-                    <div className="mt-2 space-y-0.5 pl-1">
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                       {DIAGNOSIS_PLAIN_ENGLISH[
                         diagnosisQuestion.order
                       ]?.options?.map((opt, i) => (
-                        <p key={i}>{opt}</p>
+                        <span
+                          key={i}
+                          className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted"
+                        >
+                          {opt}
+                        </span>
                       ))}
                     </div>
                   )}
+                  <div className="mt-2 flex min-w-0 flex-nowrap items-stretch gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (
+                          diagnosisQuestion.paragraphHint &&
+                          onViewRelatedParagraphToggle
+                        ) {
+                          onViewRelatedParagraphToggle(
+                            diagnosisQuestion.paragraphHint
+                          );
+                        }
+                      }}
+                      className={`min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-center text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface ${
+                        isViewRelatedActive?.(diagnosisQuestion.paragraphHint ?? 0)
+                          ? "border-primary bg-primary/15 text-primary dark:bg-primary/25"
+                          : "border-border bg-surface text-text hover:bg-surface-2"
+                      }`}
+                    >
+                      View related paragraph
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowSimpleEnglish(false);
+                        setSimpleEnglishText("");
+                        if (onSimpleEnglishParagraphHintChange) {
+                          onSimpleEnglishParagraphHintChange(null);
+                        }
+                        onRetry?.();
+                        setFlipped(false);
+                        window.setTimeout(() => {
+                          setDiagnoseQuestionOrder(null);
+                        }, 1000);
+                      }}
+                      className="min-w-0 flex-1 rounded-lg bg-primary px-2.5 py-1.5 text-center text-[11px] font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
+                    >
+                      Retry this question
+                    </button>
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="mt-2 flex min-w-0 flex-nowrap items-stretch gap-1.5">
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (
-                        diagnosisQuestion.paragraphHint &&
-                        onHighlightParagraph
+                        diagnosisQuestion?.paragraphHint &&
+                        getSimpleParagraphText
                       ) {
-                        onHighlightParagraph(diagnosisQuestion.paragraphHint);
+                        if (showSimpleEnglish) {
+                          setShowSimpleEnglish(false);
+                          if (onSimpleEnglishParagraphHintChange) {
+                            onSimpleEnglishParagraphHintChange(null);
+                          }
+                          return;
+                        }
+                        const text = getSimpleParagraphText(
+                          diagnosisQuestion.paragraphHint
+                        );
+                        if (text) {
+                          setSimpleEnglishText(text);
+                          setShowSimpleEnglish(true);
+                          if (onSimpleEnglishParagraphHintChange) {
+                            onSimpleEnglishParagraphHintChange(
+                              diagnosisQuestion.paragraphHint
+                            );
+                          }
+                        } else {
+                          setSimpleEnglishText(
+                            "A simple-English version of this paragraph is not available."
+                          );
+                          setShowSimpleEnglish(true);
+                        }
                       }
                     }}
-                    className="shrink-0 rounded-lg border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
+                    className={`min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-center text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface ${
+                      showSimpleEnglish
+                        ? "border-primary bg-primary/15 text-primary dark:bg-primary/25"
+                        : "border-border bg-surface text-text hover:bg-surface-2"
+                    }`}
                   >
-                    Show related paragraph
+                    Simple English paragraph
                   </button>
                   <button
                     type="button"
@@ -877,33 +1078,31 @@ function FlipCoachCard({
                         onRequestTranslation(diagnosisQuestion.order);
                       }
                     }}
-                    className="shrink-0 rounded-lg border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
+                    className={`min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-center text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface ${
+                      translationState &&
+                      translationState.questionOrder === diagnosisQuestion.order &&
+                      !translationState.loading
+                        ? "border-primary bg-primary/15 text-primary dark:bg-primary/25"
+                        : "border-border bg-surface text-text hover:bg-surface-2"
+                    }`}
                   >
                     Translate paragraph
                   </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // First flip back to the front so the user sees a natural rotation,
-                      // then clear the diagnosis state shortly after so we don't show
-                      // a blank back face during the transition.
-                      setFlipped(false);
-                      window.setTimeout(() => {
-                        setDiagnoseQuestionOrder(null);
-                      }, 1000);
-                    }}
-                    className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-[11px] font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
-                  >
-                    Retry
-                  </button>
                 </div>
+                {showSimpleEnglish && simpleEnglishText && (
+                  <div className="mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2 text-[11px] leading-relaxed text-text">
+                    <p className="font-semibold text-text">
+                      Simple English version
+                    </p>
+                    <p className="mt-1 text-text">{simpleEnglishText}</p>
+                  </div>
+                )}
                 {translationState &&
                   translationState.questionOrder ===
                     diagnosisQuestion.order && (
                     <div className="mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2 text-[11px] leading-relaxed text-text">
                       <p className="font-semibold text-text">Translation</p>
-                      <p className="mt-1 text-muted">
+                      <p className="mt-1 text-text">
                         {translationState.loading
                           ? "Translating paragraph..."
                           : translationState.translatedText ||

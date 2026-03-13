@@ -20,12 +20,24 @@ export const metadata: Metadata = {
 };
 
 const themeScript = `
-  (function(){
+  (function () {
     var k = 'mcq-theme';
     var s = localStorage.getItem(k);
-    var d = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (s === 'dark' || (!s && d)) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
+    var d =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var p =
+      typeof window !== 'undefined' &&
+      window.location &&
+      (window.location.pathname.startsWith('/reading') ||
+        window.location.pathname.startsWith('/attempt') ||
+        window.location.pathname.startsWith('/practice'));
+    if (p && (s === 'dark' || (!s && d))) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   })();
 `;
 
@@ -35,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
