@@ -114,3 +114,45 @@ body {
   position: relative !important;
   inset: auto !important;
 }
+
+/* Always-visible scrollbar for passage and cards columns.
+   -webkit-appearance: none forces a classic (non-overlay) scrollbar on macOS. */
+.scrollbar-visible {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--surface-2);
+}
+.scrollbar-visible::-webkit-scrollbar {
+  width: 12px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.scrollbar-visible::-webkit-scrollbar-track {
+  background: var(--surface-2);
+  border-radius: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.scrollbar-visible::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 40px;
+}
+.scrollbar-visible::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-text);
+}
+.scrollbar-visible::-webkit-scrollbar-thumb:active {
+  background: var(--muted-text);
+}
+
+/* Hide native scrollbar when using custom scrollbar */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

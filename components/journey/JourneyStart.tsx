@@ -18,8 +18,25 @@ export function JourneyStart() {
 
   const handleStart = () => {
     if (!selected.length) return;
-    // For now, default reading journey goes straight to theater mode.
-    router.push("/reading/theater");
+    // Route by selected skill(s): single skill goes to that practice; multiple go to mission.
+    if (selected.length > 1) {
+      router.push("/mission");
+      return;
+    }
+    switch (selected[0]) {
+      case "reading":
+        router.push("/reading/theater");
+        break;
+      case "writing":
+        router.push("/practice/writing/intro");
+        break;
+      case "listening":
+      case "speaking":
+        router.push("/mission");
+        break;
+      default:
+        router.push("/mission");
+    }
   };
 
   return (

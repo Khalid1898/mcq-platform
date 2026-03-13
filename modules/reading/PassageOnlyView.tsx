@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Moon, RotateCw, Sun, X } from "lucide-react";
+import Link from "next/link";
+import { Check, Home, Moon, RotateCw, Sun, X } from "lucide-react";
 import { useTheme } from "@/app/ThemeProvider";
+import { ScrollAreaAlwaysVisible } from "@/components/ScrollAreaAlwaysVisible";
 import { Input } from "@/components/ui/input";
 import { WordLookupPopup } from "@/components/WordLookupPopup";
 import type {
@@ -10,6 +12,10 @@ import type {
   ReadingQuestion,
   ReadingQuestionSection,
 } from "@/lib/content/reading";
+import {
+  MATCHING_CORRECTION_CONFIG,
+  type MatchingCorrectionStep,
+} from "@/content/reading/matching-correction-config";
 
 type Props = {
   passage: ReadingPassage;
@@ -179,7 +185,15 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
   return (
     <div className="w-full px-2 py-4 sm:px-4 md:px-6 lg:px-8">
       <div className="mb-3 flex items-center justify-between gap-2 text-xs text-muted">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-text shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg dark:border-border dark:bg-surface-2 dark:hover:bg-surface"
+          >
+            <Home className="h-4 w-4" />
+            <span>Home</span>
+          </Link>
+          <div className="flex items-center gap-1.5">
           <span className="hidden sm:inline text-[11px]">Text size</span>
           <div className="inline-flex items-center gap-0.5 rounded-xl border border-border bg-surface px-1 py-0.5 shadow-sm">
             <button
@@ -208,6 +222,7 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
             >
               A+
             </button>
+          </div>
           </div>
         </div>
         <div className="flex items-center justify-end gap-2 text-xs text-muted">
@@ -241,17 +256,18 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
           viewReady ? "opacity-100" : "opacity-0"
         }`}
       >
-        <div className="grid gap-6 md:grid-cols-[minmax(0,0.7fr)_minmax(0,0.3fr)]">
-          <article
-            onDoubleClick={(event) => {
-              const selection = window.getSelection();
-              const text = selection ? selection.toString() : "";
-              if (!text.trim()) return;
-              handleWordLookup(text, event.clientX, event.clientY);
-            }}
-          >
-            <h1 className="text-lg font-semibold text-text">{passage.title}</h1>
-            <div className="mt-4 space-y-4 leading-relaxed text-text">
+        <div className="grid gap-6 md:grid-cols-[minmax(0,0.6fr)_minmax(0,0.4fr)]">
+          <ScrollAreaAlwaysVisible className="max-h-[90vh]">
+            <article
+              onDoubleClick={(event) => {
+                const selection = window.getSelection();
+                const text = selection ? selection.toString() : "";
+                if (!text.trim()) return;
+                handleWordLookup(text, event.clientX, event.clientY);
+              }}
+            >
+              <h1 className="text-lg font-semibold text-text">{passage.title}</h1>
+              <div className="mt-4 space-y-4 leading-relaxed text-text">
               {passage.paragraphs.map((p, index) => {
                 const isFlashHighlighted = highlightedParagraphId === p.id;
                 const isSimpleHighlighted = simpleEnglishParagraphId === p.id;
@@ -286,16 +302,24 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                   </p>
                 );
               })}
-            </div>
-          </article>
+              </div>
+            </article>
+          </ScrollAreaAlwaysVisible>
 
-          <aside className="hidden md:flex max-h-[80vh] flex-col gap-4 overflow-y-auto pr-1">
+          <aside className="hidden md:flex max-h-[90vh] flex-col pr-1">
+            <ScrollAreaAlwaysVisible className="max-h-[90vh] min-h-0 flex-1">
+              <div className="flex flex-col gap-4">
             {COACH_CARDS.map((card, index) => {
               const sections = passage.questionSections ?? [];
               const section = sections[index] ?? null;
-              const [startOrder, endOrder] = section
-                ? [section.startOrder, section.endOrder]
-                : [[1, 5], [6, 9], [10, 13]][index] ?? [1, 5];
+              // Always use fixed ranges per card index so each card shows only its questions (1–5, 6–9, 10–13).
+              const CARD_RANGES: [number, number][] = [
+                [1, 5],
+                [6, 9],
+                [10, 13],
+              ];
+              const [startOrder, endOrder] =
+                CARD_RANGES[index] ?? CARD_RANGES[0];
               const cardQuestions = passage.questions.filter(
                 (q) => q.order >= startOrder && q.order <= endOrder
               );
@@ -445,6 +469,12 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                 });
               };
 
+              const paragraphTextByLetter: Record<string, string> = {};
+              passage.paragraphs.forEach((p, i) => {
+                const letter = String.fromCharCode(65 + i);
+                paragraphTextByLetter[letter] = p.text;
+              });
+
               return (
                 <div key={card.id} className="w-full shrink-0">
                   <FlipCoachCard
@@ -454,6 +484,7 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                     }
                     section={section ?? undefined}
                     correctAnswers={correctAnswers}
+                    paragraphTextByLetter={paragraphTextByLetter}
                     onHighlightParagraph={handleHighlightParagraph}
                     fontScale={fontScale}
                     onRequestTranslation={handleRequestTranslation}
@@ -473,6 +504,8 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                 </div>
               );
             })}
+              </div>
+            </ScrollAreaAlwaysVisible>
           </aside>
         </div>
       </div>
@@ -503,6 +536,8 @@ type FlipCoachCardProps = {
   section?: ReadingQuestionSection;
   /** Question order → correct answer; used for immediate green/red feedback. */
   correctAnswers?: Record<number, string>;
+  /** Paragraph text by letter (A–H) for Matching correction back (trap vs correct, evidence). */
+  paragraphTextByLetter?: Record<string, string>;
   /** Highlight a passage paragraph using its 1-based paragraphHint (if available). */
   onHighlightParagraph?: (paragraphHint?: number) => void;
   /** Font scale factor shared with the passage for comfortable reading. */
@@ -526,6 +561,21 @@ type FlipCoachCardProps = {
   /** Called when user clicks Retry; parent can clear view-related/translation state. */
   onRetry?: () => void;
 };
+
+/** Highlights a phrase inside a text string for evidence display. */
+function EvidenceHighlight({ text, phrase }: { text: string; phrase: string }) {
+  const i = text.indexOf(phrase);
+  if (i === -1) return <span>{text}</span>;
+  return (
+    <span>
+      {text.slice(0, i)}
+      <mark className="rounded bg-amber-400/60 px-0.5 font-medium text-amber-950 dark:bg-amber-300/50 dark:text-amber-950">
+        {phrase}
+      </mark>
+      {text.slice(i + phrase.length)}
+    </span>
+  );
+}
 
 /** Returns whether user answer matches correct answer (case-insensitive for TFNG and sentence completion). */
 function isAnswerCorrect(
@@ -580,6 +630,7 @@ function FlipCoachCard({
   questions,
   section,
   correctAnswers,
+  paragraphTextByLetter,
   onHighlightParagraph,
   fontScale,
   onRequestTranslation,
@@ -596,8 +647,22 @@ function FlipCoachCard({
   const [diagnoseQuestionOrder, setDiagnoseQuestionOrder] = useState<
     number | null
   >(null);
+  const [matchingDiagnoseQuestionOrder, setMatchingDiagnoseQuestionOrder] =
+    useState<number | null>(null);
   const [showSimpleEnglish, setShowSimpleEnglish] = useState(false);
   const [simpleEnglishText, setSimpleEnglishText] = useState<string>("");
+
+  /** Matching correction flow: reset when the diagnosed question changes. */
+  const [meaningBlocksClicked, setMeaningBlocksClicked] = useState(0);
+  const [stage2CorrectChosen, setStage2CorrectChosen] = useState(false);
+  const [stage2TrapChosen, setStage2TrapChosen] = useState(false);
+  const [evidenceRevealed, setEvidenceRevealed] = useState(false);
+  useEffect(() => {
+    setMeaningBlocksClicked(0);
+    setStage2CorrectChosen(false);
+    setStage2TrapChosen(false);
+    setEvidenceRevealed(false);
+  }, [matchingDiagnoseQuestionOrder]);
 
   // Avoid showing the back/OK face in the initial server render,
   // so we don't flash it on refresh before hydration.
@@ -615,6 +680,14 @@ function FlipCoachCard({
     diagnoseQuestionOrder != null &&
     (questions?.some((q) => q.order === diagnoseQuestionOrder) ?? false);
 
+  const matchingDiagnoseQuestion =
+    matchingDiagnoseQuestionOrder != null
+      ? questions?.find((q) => q.order === matchingDiagnoseQuestionOrder)
+      : null;
+  const showMatchingDiagnosisBack =
+    matchingDiagnoseQuestionOrder != null &&
+    (questions?.some((q) => q.order === matchingDiagnoseQuestionOrder) ?? false);
+
   const setAnswer = (questionId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
@@ -629,6 +702,20 @@ function FlipCoachCard({
       !isAnswerCorrect(q.type, value, correctAnswers[q.order])
     ) {
       setDiagnoseQuestionOrder(q.order);
+      setFlipped(true);
+    }
+  };
+
+  const handleMatchingAnswerSelect = (q: ReadingQuestion, value: string) => {
+    setAnswer(q.id, value);
+    if (
+      q.type === "MATCHING_INFO" &&
+      q.order >= 6 &&
+      q.order <= 9 &&
+      correctAnswers?.[q.order] &&
+      !isAnswerCorrect(q.type, value, correctAnswers[q.order])
+    ) {
+      setMatchingDiagnoseQuestionOrder(q.order);
       setFlipped(true);
     }
   };
@@ -661,18 +748,18 @@ function FlipCoachCard({
           {hasQuestions ? (
             <>
               <div
-                className="flex flex-col gap-2 pr-1 leading-relaxed text-text"
-                style={{ fontSize: `${12 * scale}px` }}
+                className="flex flex-col gap-2 pr-1 text-text"
+                style={{ fontSize: `${13 * scale}px`, lineHeight: 1.6 }}
               >
                 {section ? (
                   <>
-                    <h3 className="text-[14px] font-semibold text-text">
+                    <h3 className="text-[15px] font-semibold text-text leading-snug">
                       {section.title}
                     </h3>
-                    <p className="text-[12px] font-medium text-text">
+                    <p className="text-[13px] font-medium text-text leading-snug">
                       {section.subtitle}
                     </p>
-                    <ul className="list-none space-y-1 pl-0 text-[11px] text-muted">
+                    <ul className="list-none space-y-1 pl-0 text-[12px] text-muted leading-relaxed">
                       {section.instructions.map((line, i) => (
                         <li key={i}>{line}</li>
                       ))}
@@ -690,7 +777,7 @@ function FlipCoachCard({
                         return (
                         <div key={q.id} className="flex flex-col gap-2">
                           <div className="flex items-start justify-between gap-2">
-                            <p className="min-w-0 flex-1 leading-relaxed text-text">
+                            <p className="min-w-0 flex-1 text-text" style={{ lineHeight: 1.55 }}>
                               <span className="font-semibold">{q.order}.</span>{" "}
                               {q.prompt}
                             </p>
@@ -725,7 +812,7 @@ function FlipCoachCard({
                                           ? handleAnswerSelect(q, opt)
                                           : setAnswer(q.id, opt)
                                       }
-                                      className={`rounded-md border px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 ${
+                                      className={`rounded-md border px-2.5 py-1.5 text-[12px] font-medium uppercase tracking-wide transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 ${
                                         showGreen
                                           ? "border-green-600 bg-green-100 text-green-800 dark:border-green-500 dark:bg-green-950/50 dark:text-green-200"
                                           : showRed
@@ -746,7 +833,7 @@ function FlipCoachCard({
                             <select
                               value={answers[q.id] ?? ""}
                               onChange={(e) =>
-                                setAnswer(q.id, e.target.value)
+                                handleMatchingAnswerSelect(q, e.target.value)
                               }
                               className={`w-full max-w-[6rem] rounded-lg border-2 px-3 py-2 text-[13px] font-medium text-text focus:outline-none focus:ring-2 focus:ring-offset-1 ${
                                 isCorrect
@@ -791,11 +878,11 @@ function FlipCoachCard({
                 ) : (
                   <>
                     <div className="shrink-0 border-b border-border pb-2">
-                      <h3 className="text-[14px] font-semibold text-text">
+                      <h3 className="text-[15px] font-semibold text-text leading-snug">
                         Questions {questions[0]?.order ?? 1}–
                         {questions[questions.length - 1]?.order ?? questions.length}
                       </h3>
-                      <p className="mt-0.5 text-[11px] text-muted">
+                      <p className="mt-0.5 text-[12px] text-muted leading-relaxed">
                         Answer the questions below. Choose your answer from the
                         passage.
                       </p>
@@ -813,7 +900,7 @@ function FlipCoachCard({
                         return (
                         <div key={q.id} className="flex flex-col gap-2">
                           <div className="flex items-start justify-between gap-2">
-                            <p className="min-w-0 flex-1 text-[12px] leading-relaxed text-text">
+                            <p className="min-w-0 flex-1 text-[13px] text-text" style={{ lineHeight: 1.55 }}>
                               <span className="font-semibold">{q.order}.</span>{" "}
                               {q.prompt}
                             </p>
@@ -848,7 +935,7 @@ function FlipCoachCard({
                                           ? handleAnswerSelect(q, opt)
                                           : setAnswer(q.id, opt)
                                       }
-                                      className={`rounded-md border px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 ${
+                                      className={`rounded-md border px-2.5 py-1.5 text-[12px] font-medium uppercase tracking-wide transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 ${
                                         showGreen
                                           ? "border-green-600 bg-green-100 text-green-800 dark:border-green-500 dark:bg-green-950/50 dark:text-green-200"
                                           : showRed
@@ -869,7 +956,7 @@ function FlipCoachCard({
                             <select
                               value={answers[q.id] ?? ""}
                               onChange={(e) =>
-                                setAnswer(q.id, e.target.value)
+                                handleMatchingAnswerSelect(q, e.target.value)
                               }
                               className={`w-full max-w-[6rem] rounded-lg border-2 px-3 py-2 text-[13px] font-medium text-text focus:outline-none focus:ring-2 focus:ring-offset-1 ${
                                 isCorrect
@@ -925,7 +1012,7 @@ function FlipCoachCard({
             </>
           ) : (
             <>
-              <div className="text-[13px] font-semibold text-text">
+              <div className="text-[14px] font-semibold text-text leading-snug">
                 {card.frontTitle}
               </div>
               <div
@@ -947,25 +1034,25 @@ function FlipCoachCard({
             onClick={(e) => e.stopPropagation()}
           >
             <>
-                <div className="shrink-0 rounded-lg border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-[11px] dark:border-amber-500/40 dark:bg-amber-500/15">
-                  <p className="font-semibold text-text">
+                <div className="shrink-0 rounded-lg border border-amber-500/50 bg-amber-500/10 px-3 py-2.5 text-[12px] dark:border-amber-500/40 dark:bg-amber-500/15">
+                  <p className="font-semibold text-text leading-snug">
                     Question {diagnosisQuestion.order}
                   </p>
-                  <p className="mt-0.5 leading-relaxed text-text">
+                  <p className="mt-0.5 text-text leading-relaxed" style={{ lineHeight: 1.55 }}>
                     {diagnosisQuestion.prompt}
                   </p>
-                  <p className="mt-1 text-muted">
+                  <p className="mt-1 text-muted leading-relaxed">
                     Your answer: {answers[diagnosisQuestion.id] ?? "—"}
                   </p>
                   <p className="mt-1 font-medium text-amber-700 dark:text-amber-300">
                     Let's diagnose the mistake.
                   </p>
                 </div>
-                <div className="min-w-0 rounded-lg border border-border bg-surface-2 px-3 py-2 text-[11px] text-text">
-                  <p className="font-semibold text-text">
+                <div className="min-w-0 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[12px] text-text">
+                  <p className="font-semibold text-text leading-snug">
                     What does the question mean in plain English?
                   </p>
-                  <p className="mt-1">
+                  <p className="mt-1 leading-relaxed" style={{ lineHeight: 1.55 }}>
                     {DIAGNOSIS_PLAIN_ENGLISH[diagnosisQuestion.order]?.question ??
                       "Re-read the related paragraph and check whether the statement agrees with, contradicts, or is not mentioned in the passage."}
                   </p>
@@ -977,7 +1064,7 @@ function FlipCoachCard({
                       ]?.options?.map((opt, i) => (
                         <span
                           key={i}
-                          className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted"
+                          className="inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-muted"
                         >
                           {opt}
                         </span>
@@ -998,7 +1085,7 @@ function FlipCoachCard({
                           );
                         }
                       }}
-                      className={`min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-center text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface ${
+                      className={`min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-center text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface ${
                         isViewRelatedActive?.(diagnosisQuestion.paragraphHint ?? 0)
                           ? "border-primary bg-primary/15 text-primary dark:bg-primary/25"
                           : "border-border bg-surface text-text hover:bg-surface-2"
@@ -1021,7 +1108,7 @@ function FlipCoachCard({
                           setDiagnoseQuestionOrder(null);
                         }, 1000);
                       }}
-                      className="min-w-0 flex-1 rounded-lg bg-primary px-2.5 py-1.5 text-center text-[11px] font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
+                      className="min-w-0 flex-1 rounded-lg bg-primary px-2.5 py-1.5 text-center text-[12px] font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
                     >
                       Retry this question
                     </button>
@@ -1062,7 +1149,7 @@ function FlipCoachCard({
                         }
                       }
                     }}
-                    className={`min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-center text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface ${
+                    className={`min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-center text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface ${
                       showSimpleEnglish
                         ? "border-primary bg-primary/15 text-primary dark:bg-primary/25"
                         : "border-border bg-surface text-text hover:bg-surface-2"
@@ -1078,7 +1165,7 @@ function FlipCoachCard({
                         onRequestTranslation(diagnosisQuestion.order);
                       }
                     }}
-                    className={`min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-center text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface ${
+                    className={`min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-center text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface ${
                       translationState &&
                       translationState.questionOrder === diagnosisQuestion.order &&
                       !translationState.loading
@@ -1090,19 +1177,19 @@ function FlipCoachCard({
                   </button>
                 </div>
                 {showSimpleEnglish && simpleEnglishText && (
-                  <div className="mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2 text-[11px] leading-relaxed text-text">
-                    <p className="font-semibold text-text">
+                  <div className="mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[12px] text-text">
+                    <p className="font-semibold text-text leading-snug">
                       Simple English version
                     </p>
-                    <p className="mt-1 text-text">{simpleEnglishText}</p>
+                    <p className="mt-1 text-text leading-relaxed" style={{ lineHeight: 1.55 }}>{simpleEnglishText}</p>
                   </div>
                 )}
                 {translationState &&
                   translationState.questionOrder ===
                     diagnosisQuestion.order && (
-                    <div className="mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2 text-[11px] leading-relaxed text-text">
-                      <p className="font-semibold text-text">Translation</p>
-                      <p className="mt-1 text-text">
+                    <div className="mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[12px] text-text">
+                      <p className="font-semibold text-text leading-snug">Translation</p>
+                      <p className="mt-1 text-text leading-relaxed" style={{ lineHeight: 1.55 }}>
                         {translationState.loading
                           ? "Translating paragraph..."
                           : translationState.translatedText ||
@@ -1113,6 +1200,179 @@ function FlipCoachCard({
             </>
           </div>
         )}
+
+        {showBackFace && showMatchingDiagnosisBack && matchingDiagnoseQuestion && (() => {
+          const config = MATCHING_CORRECTION_CONFIG[matchingDiagnoseQuestion.order] as MatchingCorrectionStep | undefined;
+          const blocksComplete = config ? meaningBlocksClicked >= config.meaningBlocks.length : false;
+          const canShowAnswer = blocksComplete && stage2CorrectChosen && evidenceRevealed;
+
+          return (
+          <div
+            className="flip-card-face flip-card-back flex min-w-0 flex-col gap-3 overflow-y-auto overflow-x-hidden px-4 py-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="shrink-0 rounded-lg border border-amber-500/50 bg-amber-500/10 px-3 py-2.5 text-[12px] dark:border-amber-500/40 dark:bg-amber-500/15">
+              <p className="font-semibold text-text leading-snug">
+                Question {matchingDiagnoseQuestion.order}
+              </p>
+              <p className="mt-0.5 text-text leading-relaxed" style={{ lineHeight: 1.55 }}>
+                {matchingDiagnoseQuestion.prompt}
+              </p>
+              <p className="mt-1 text-muted leading-relaxed">
+                Your answer: {answers[matchingDiagnoseQuestion.id] ?? "—"}
+              </p>
+              {canShowAnswer && (
+                <p className="mt-1 font-medium text-amber-700 dark:text-amber-300">
+                  Correct answer: {correctAnswers?.[matchingDiagnoseQuestion.order] ?? "—"}
+                </p>
+              )}
+            </div>
+
+            {config && (
+              <>
+                {/* Stage 1 — Question decomposition: click through meaning blocks */}
+                <div className="min-w-0 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[12px] text-text">
+                  <p className="font-semibold text-text leading-snug">
+                    Stage 1 — Question decomposition
+                  </p>
+                  <p className="mt-1 text-muted leading-snug">
+                    Click each meaning block so you process the full question.
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {config.meaningBlocks.map((block, i) => {
+                      const revealed = i < meaningBlocksClicked;
+                      const isCurrent = i === meaningBlocksClicked;
+                      const disabled = !isCurrent && !revealed;
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          disabled={disabled}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isCurrent && meaningBlocksClicked < config.meaningBlocks.length) {
+                              setMeaningBlocksClicked((c) => c + 1);
+                            }
+                          }}
+                          className={`rounded-lg border px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface disabled:opacity-60 disabled:pointer-events-none ${
+                            revealed
+                              ? "border-green-600/50 bg-green-500/15 text-text dark:border-green-500/50 dark:bg-green-500/20"
+                              : "border-border bg-surface text-text hover:border-primary/50 hover:bg-surface-2"
+                          }`}
+                        >
+                          {revealed ? `✓ ${block}` : isCurrent ? `Click: ${block}` : `—`}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Stage 2 — Trap confrontation: choose correct paragraph */}
+                {blocksComplete && (
+                  <div className="min-w-0 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[12px] text-text">
+                    <p className="font-semibold text-text leading-snug">
+                      Stage 2 — Trap confrontation
+                    </p>
+                    <p className="mt-1 leading-relaxed" style={{ lineHeight: 1.55 }}>
+                      {config.comparisonPrompt}
+                    </p>
+                    {stage2TrapChosen && !stage2CorrectChosen && (
+                      <p className="mt-2 rounded border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-800 dark:text-amber-200">
+                        {config.trapReasonShort} Which one actually matches?
+                      </p>
+                    )}
+                    {stage2CorrectChosen && (
+                      <p className="mt-2 rounded border border-green-600/40 bg-green-500/10 px-2 py-1.5 text-[11px] text-green-800 dark:text-green-200">
+                        {config.correctReasonShort}
+                      </p>
+                    )}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setStage2TrapChosen(true);
+                        }}
+                        className={`rounded-lg border-2 px-3 py-2 text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                          stage2CorrectChosen ? "border-border bg-surface-2 text-muted" : "border-border bg-surface text-text hover:border-primary/50"
+                        }`}
+                      >
+                        Paragraph {config.trapLetter}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setStage2CorrectChosen(true);
+                        }}
+                        className={`rounded-lg border-2 px-3 py-2 text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                          stage2CorrectChosen ? "border-green-600 bg-green-500/20 text-green-800 dark:text-green-200" : "border-border bg-surface text-text hover:border-primary/50"
+                        }`}
+                      >
+                        Paragraph {config.correctLetter}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Stage 3 — Evidence alignment */}
+                {stage2CorrectChosen && (
+                  <div className="min-w-0 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[12px] text-text">
+                    <p className="font-semibold text-text leading-snug">
+                      Stage 3 — Evidence alignment
+                    </p>
+                    {!evidenceRevealed ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEvidenceRevealed(true);
+                        }}
+                        className="mt-2 rounded-lg bg-primary px-3 py-2 text-[12px] font-medium text-primary-foreground hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                      >
+                        Reveal the evidence
+                      </button>
+                    ) : (
+                      <p className="mt-2 leading-relaxed" style={{ lineHeight: 1.55 }}>
+                        <EvidenceHighlight text={config.evidenceContext} phrase={config.evidencePhrase} />
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Stage 4 — Takeaway (and answer shown above when canShowAnswer) */}
+                {evidenceRevealed && (
+                  <div className="min-w-0 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[12px] text-text">
+                    <p className="font-semibold text-text leading-snug">
+                      Stage 4 — Strategy takeaway
+                    </p>
+                    <p className="mt-1 leading-relaxed font-medium text-primary" style={{ lineHeight: 1.55 }}>
+                      {config.takeaway}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+
+            <div className="min-w-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRetry?.();
+                  setFlipped(false);
+                  window.setTimeout(() => {
+                    setMatchingDiagnoseQuestionOrder(null);
+                  }, 1000);
+                }}
+                className="w-full rounded-lg bg-primary px-2.5 py-1.5 text-center text-[12px] font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
+              >
+                Retry this question
+              </button>
+            </div>
+          </div>
+          );
+        })()}
       </div>
     </div>
   );

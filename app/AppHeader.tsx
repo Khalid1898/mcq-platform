@@ -13,6 +13,7 @@ export default function AppHeader() {
   const isAttemptRoute = pathname?.startsWith("/attempt/");
   const isResultPage = pathname?.includes("/result");
   const isReadingTheater = pathname === "/reading/theater";
+  const isPracticeRoute = pathname?.startsWith("/practice");
   const showExitQuiz = Boolean(isAttemptRoute && !isResultPage);
 
   const isAuthOrAdmin =
@@ -47,6 +48,14 @@ export default function AppHeader() {
         </Link>
 
         <div className="flex items-center gap-2">
+          {isPracticeRoute ? (
+            <Link
+              href="/"
+              className="inline-flex items-center rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-text hover:bg-surface-2"
+            >
+              Home
+            </Link>
+          ) : null}
           <Link
             href="/login"
             className="inline-flex items-center rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-text hover:bg-surface-2"
