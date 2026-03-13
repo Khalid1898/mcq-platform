@@ -3,25 +3,25 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 
 export default function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
 
   const isAttemptRoute = pathname?.startsWith("/attempt/");
   const isResultPage = pathname?.includes("/result");
   const isReadingTheater = pathname === "/reading/theater";
   const showExitQuiz = Boolean(isAttemptRoute && !isResultPage);
 
-  const [showExitModal, setShowExitModal] = useState(false);
-  const [themeReady, setThemeReady] = useState(false);
+  const isAuthOrAdmin =
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname?.startsWith("/profile") ||
+    pathname?.startsWith("/admin");
 
-  useEffect(() => {
-    setThemeReady(true);
-  }, []);
+  const [showExitModal, setShowExitModal] = useState(false);
 
   const goToQuizzes = () => {
     setShowExitModal(false);
@@ -47,26 +47,18 @@ export default function AppHeader() {
         </Link>
 
         <div className="flex items-center gap-2">
-          {themeReady && (
-            <button
-              type="button"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-medium text-text shadow-sm transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:border-border dark:bg-surface-2 dark:hover:bg-surface"
-              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {theme === "dark" ? (
-                <>
-                  <Sun className="h-4 w-4" />
-                  <span>Light mode</span>
-                </>
-              ) : (
-                <>
-                  <Moon className="h-4 w-4" />
-                  <span>Dark mode</span>
-                </>
-              )}
-            </button>
-          )}
+          <Link
+            href="/login"
+            className="inline-flex items-center rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-text hover:bg-surface-2"
+          >
+            Login
+          </Link>
+          <Link
+            href="/register"
+            className="hidden sm:inline-flex items-center rounded-xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
+          >
+            Sign up
+          </Link>
           {showExitQuiz ? (
             <>
               <button

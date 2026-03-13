@@ -36,6 +36,40 @@
       "text": "Understanding time perception has practical implications. It can inform the design of workplaces, educational settings, and even digital applications. For example, reducing boredom in waiting environments—through music or visual engagement—can shorten perceived waiting time without changing actual duration."
     }
   ],
+  "simpleParagraphs": [
+    {
+      "id": "p1",
+      "text": "People do not experience time in a simple and steady way. Our feeling of time is influenced by attention, emotions, memory, and culture. Even though clocks measure time exactly, the brain creates its own sense of time. Because of this, time can feel faster or slower in different situations."
+    },
+    {
+      "id": "p2",
+      "text": "Attention is very important for how we feel time. When people focus strongly on a task, they often feel that time passes quickly because their mind is busy with the activity. But when people are bored or waiting without anything to do, they notice time more and it feels slower."
+    },
+    {
+      "id": "p3",
+      "text": "Emotions can also change how we experience time. Strong emotions such as fear or excitement can affect our sense of time. In dangerous situations, people sometimes feel that events happen slowly. Scientists believe this happens because emotional events are stored in memory with many details, which makes them seem longer later."
+    },
+    {
+      "id": "p4",
+      "text": "Memory also affects how we feel time. The brain does not remember every moment equally. When we have new experiences, such as traveling to a new country, we create many memories. Because of this, that period may feel longer when we think about it later. But routine activities create fewer memories, so long periods may seem shorter."
+    },
+    {
+      "id": "p5",
+      "text": "Age can influence how people experience time. Children often feel that time moves slowly, while older adults often feel that years pass quickly. Some psychologists think this happens because each year becomes a smaller part of a person's life as they grow older. Others believe it happens because adults experience fewer new things."
+    },
+    {
+      "id": "p6",
+      "text": "Culture can also influence how people experience time. In some societies, people value punctuality and strict schedules, so they become very aware of time. In other cultures, relationships and social interaction are more important than strict timetables, so people may feel time in a more relaxed way."
+    },
+    {
+      "id": "p7",
+      "text": "Recent brain research shows that some parts of the brain help process time. Two important areas are the basal ganglia and the prefrontal cortex. However, scientists say there is no single place in the brain that controls time perception. Instead, different brain systems work together."
+    },
+    {
+      "id": "p8",
+      "text": "Understanding time perception can be useful in real life. It can help improve workplaces, schools, and digital products. For example, adding music or visual entertainment in waiting areas can reduce boredom. This can make waiting feel shorter even though the real waiting time does not change."
+    }
+  ],
   "questions": [
     {
       "id": "q1",

@@ -49,6 +49,8 @@ export type ReadingPassage = {
   title: string;
   level?: "easy" | "medium" | "hard";
   paragraphs: ReadingParagraph[];
+  /** Optional simple-English versions of each paragraph, same ordering and ids as paragraphs. */
+  simpleParagraphs?: ReadingParagraph[];
   questions: ReadingQuestion[];
   /** Optional: section titles and instructions for the question list (card 1). */
   questionSections?: ReadingQuestionSection[];

@@ -38,17 +38,17 @@ const COACH_CARDS: CoachCard[] = [
     id: "card-1",
     frontTitle:
       "Click to set what you should do before reading a single line.",
-    backTitle: "Back of card 1 – fill with your own coaching later.",
+    backTitle: "",
   },
   {
     id: "card-2",
     frontTitle: "Click to define your time‑plan tip.",
-    backTitle: "Back of card 2 – your content goes here.",
+    backTitle: "",
   },
   {
     id: "card-3",
     frontTitle: "Click to define how to use the question types.",
-    backTitle: "Back of card 3 – your content goes here.",
+    backTitle: "",
   },
 ];
 
@@ -814,13 +814,12 @@ function FlipCoachCard({
           )}
         </div>
 
-        {showBackFace && (
+        {showBackFace && showDiagnosisBack && diagnosisQuestion && (
           <div
             className="flip-card-face flip-card-back flex flex-col gap-3 overflow-y-auto px-4 py-3"
             onClick={(e) => e.stopPropagation()}
           >
-            {showDiagnosisBack && diagnosisQuestion ? (
-              <>
+            <>
                 <div className="shrink-0 rounded-lg border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-[11px] dark:border-amber-500/40 dark:bg-amber-500/15">
                   <p className="font-semibold text-text">
                     Question {diagnosisQuestion.order}
@@ -891,8 +890,13 @@ function FlipCoachCard({
                           ? { ...prev, [diagnosisQuestion.id]: "" }
                           : prev
                       );
-                      setDiagnoseQuestionOrder(null);
+                      // First flip back to the front so the user sees a natural rotation,
+                      // then clear the diagnosis state shortly after so we don't show
+                      // a blank back face during the transition.
                       setFlipped(false);
+                      window.setTimeout(() => {
+                        setDiagnoseQuestionOrder(null);
+                      }, 420);
                     }}
                     className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-[11px] font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
                   >
@@ -912,27 +916,7 @@ function FlipCoachCard({
                       </p>
                     </div>
                   )}
-              </>
-            ) : (
-              <>
-                <div
-                  className="text-[13px] font-semibold text-text"
-                  style={{ fontSize: `${13 * scale}px` }}
-                >
-                  {card.backTitle}
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setFlipped(false);
-                  }}
-                  className="h-12 w-12 shrink-0 rounded-lg bg-primary font-semibold text-primary-foreground shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
-                >
-                  OK
-                </button>
-              </>
-            )}
+            </>
           </div>
         )}
       </div>
