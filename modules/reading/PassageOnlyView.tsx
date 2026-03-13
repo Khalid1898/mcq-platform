@@ -885,18 +885,13 @@ function FlipCoachCard({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setAnswers((prev) =>
-                        diagnosisQuestion
-                          ? { ...prev, [diagnosisQuestion.id]: "" }
-                          : prev
-                      );
                       // First flip back to the front so the user sees a natural rotation,
                       // then clear the diagnosis state shortly after so we don't show
                       // a blank back face during the transition.
                       setFlipped(false);
                       window.setTimeout(() => {
                         setDiagnoseQuestionOrder(null);
-                      }, 420);
+                      }, 1000);
                     }}
                     className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-[11px] font-medium text-primary-foreground shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface dark:ring-offset-surface"
                   >
