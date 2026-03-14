@@ -19,7 +19,3 @@ export async function getQuestionsByIds(ids: string[]): Promise<Question[]> {
     return q;
   });
 }
-
-export async function getQuestionById(id: string): Promise<Question | undefined> {
-  return questions.find((q) => q.id === id);
-}

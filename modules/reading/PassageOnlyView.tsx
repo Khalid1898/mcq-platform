@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check, Home, Moon, RotateCw, Sun, X } from "lucide-react";
 import { useTheme } from "@/app/ThemeProvider";
 import { ScrollAreaAlwaysVisible } from "@/components/ScrollAreaAlwaysVisible";
@@ -16,6 +17,7 @@ import {
   MATCHING_CORRECTION_CONFIG,
   type MatchingCorrectionStep,
 } from "@/content/reading/matching-correction-config";
+import { getJourneySkills } from "@/lib/journey-storage";
 
 type Props = {
   passage: ReadingPassage;
@@ -59,6 +61,7 @@ const COACH_CARDS: CoachCard[] = [
 ];
 
 export function PassageOnlyView({ passage, correctAnswers }: Props) {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [themeReady, setThemeReady] = useState(false);
   const [viewReady, setViewReady] = useState(false);
@@ -75,6 +78,7 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
   const [viewRelatedParagraphId, setViewRelatedParagraphId] = useState<
     string | null
   >(null);
+  const [showContinueFooter, setShowContinueFooter] = useState(false);
   const [lookupState, setLookupState] = useState<{
     word: string;
     definition: string;
@@ -92,6 +96,11 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
     open: false,
     loading: false,
   });
+
+  useEffect(() => {
+    const journey = getJourneySkills();
+    setShowContinueFooter((journey?.length ?? 0) > 0);
+  }, []);
 
   const [translationState, setTranslationState] = useState<{
     questionOrder: number | null;
@@ -508,6 +517,25 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
             </ScrollAreaAlwaysVisible>
           </aside>
         </div>
+
+        {showContinueFooter && (
+          <footer className="mt-8 flex shrink-0 justify-center border-t border-border bg-surface/80 py-6">
+            <button
+              type="button"
+              onClick={() => {
+                const journey = getJourneySkills();
+                if (journey?.includes("writing")) {
+                  router.push("/practice/writing/intro");
+                } else {
+                  router.push("/result");
+                }
+              }}
+              className="rounded-xl border-2 border-primary bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-bg"
+            >
+              Continue to next
+            </button>
+          </footer>
+        )}
       </div>
       {lookupState.open && (
         <WordLookupPopup

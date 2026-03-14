@@ -13,7 +13,6 @@
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.34.5",
     "lucide-react": "^0.473.0",
     "natural": "^8.1.1",
     "next": "16.1.6",
@@ -21,7 +20,6 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tailwind-merge": "^2.5.4",
-    "wordpos": "^2.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

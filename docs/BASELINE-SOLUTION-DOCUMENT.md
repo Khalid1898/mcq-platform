@@ -37,7 +37,7 @@ All UI that uses theme tokens adapts to light and dark. The baseline is also rec
 
 ### 3.1 Reading Theater
 
-- **Route:** `/reading/theater`
+- **Route:** `/practice/theater` (canonical). `/reading/theater` and `/practice/reading/theater` redirect to it.
 - **Behaviour:**
   - Left (~70%): Passage content (title + paragraphs) from `passage-001`.
   - Right (~30%): Column of three coach flip cards.
@@ -86,7 +86,7 @@ All UI that uses theme tokens adapts to light and dark. The baseline is also rec
 ### 3.4 Layout and Navigation
 
 - **Root layout:** `app/layout.tsx` – theme script, `ThemeProvider`, `AppHeader`, and main content area. Main is full width with responsive padding; no max-width constraint that would limit the reading theater.
-- **Header:** Shown on all routes except `/reading/theater`. Contains logo/home link, Dark/Light mode button, and (on attempt routes) “Exit quiz” and modal. On reading theater, the header is not rendered; the theater page provides its own top bar (Home + Dark mode button).
+- **Header:** Shown on all routes except `/practice/theater`. Contains logo/home link, Dark/Light mode button, and (on attempt routes) “Exit quiz” and modal. On the theater route, the header is not rendered; the theater page provides its own top bar (Home + Dark mode button).
 
 ---
 
@@ -94,7 +94,7 @@ All UI that uses theme tokens adapts to light and dark. The baseline is also rec
 
 | Purpose                    | File(s) |
 |---------------------------|---------|
-| Reading theater page      | `app/reading/theater/page.tsx` |
+| Practice theater page (canonical) | `app/practice/theater/page.tsx` |
 | Passage + flip cards UI  | `modules/reading/PassageOnlyView.tsx` |
 | Flip card CSS             | `app/globals.css` (`.flip-card*`) |
 | Theme variables (light/dark) | `app/globals.css` (`:root`, `.dark`) |
@@ -114,7 +114,7 @@ All UI that uses theme tokens adapts to light and dark. The baseline is also rec
 - **Dark mode:** Do not remove the theme toggle, the `ThemeProvider`, the theme script, or the `.dark` variable overrides. New screens and components should use theme tokens (`bg-bg`, `text-text`, `bg-surface`, `border-border`, etc.) so they adapt to light/dark.
 - **Reading theater:** Do not remove the route or the two-column layout (passage + cards). The header can stay hidden on this route; the theater top bar (Home + Dark mode) must remain usable.
 
-When adding features (e.g. new routes, new components, or content changes), run a quick check: (1) Open `/reading/theater`, flip each card and click OK. (2) Toggle Dark mode in header and on theater. (3) Confirm cards and text remain readable and non-mirrored in both themes.
+When adding features (e.g. new routes, new components, or content changes), run a quick check: (1) Open `/practice/theater`, flip each card and click OK. (2) Toggle Dark mode in header and on theater. (3) Confirm cards and text remain readable and non-mirrored in both themes.
 
 ---
 

@@ -4,7 +4,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { SkillTiles } from "./SkillTiles";
+import { setJourneySkills } from "@/lib/journey-storage";
 import type { SkillId } from "@/lib/session-types";
+
+const READY_SKILLS: SkillId[] = ["reading", "writing"];
+const NOT_READY_SKILLS: SkillId[] = ["listening", "speaking"];
+
+function onlyNotReady(skills: SkillId[]): boolean {
+  return (
+    skills.length > 0 &&
+    skills.every((s) => NOT_READY_SKILLS.includes(s))
+  );
+}
+
+function hasReady(skills: SkillId[]): boolean {
+  return skills.some((s) => READY_SKILLS.includes(s));
+}
 
 export function JourneyStart() {
   const router = useRouter();
@@ -18,25 +33,26 @@ export function JourneyStart() {
 
   const handleStart = () => {
     if (!selected.length) return;
-    // Route by selected skill(s): single skill goes to that practice; multiple go to mission.
-    if (selected.length > 1) {
-      router.push("/mission");
+    // Listening or speaking only → module not ready
+    if (onlyNotReady(selected)) {
+      const single = selected.length === 1 ? selected[0] : null;
+      const q = single ? `?module=${single}` : "";
+      router.push(`/practice/not-ready${q}`);
       return;
     }
-    switch (selected[0]) {
-      case "reading":
-        router.push("/reading/theater");
-        break;
-      case "writing":
+    // At least one of reading/writing → start training (reading first, then writing)
+    if (hasReady(selected)) {
+      setJourneySkills(selected);
+      if (selected.includes("reading")) {
+        router.push("/practice/theater");
+        return;
+      }
+      if (selected.includes("writing")) {
         router.push("/practice/writing/intro");
-        break;
-      case "listening":
-      case "speaking":
-        router.push("/mission");
-        break;
-      default:
-        router.push("/mission");
+        return;
+      }
     }
+    router.push("/");
   };
 
   return (

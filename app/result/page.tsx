@@ -94,7 +94,7 @@ export default function ResultPage() {
             </div>
           </div>
           <Button asChild size="sm" variant="outline">
-            <Link href="/mission">Back to mission</Link>
+            <Link href="/">Back to dashboard</Link>
           </Button>
         </CardContent>
       </Card>

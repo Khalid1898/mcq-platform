@@ -115,8 +115,3 @@ export async function setScore(
   attempts.set(attemptId, updated);
   return updated;
 }
-
-// ✅ Optional helper: for debugging/dev tools
-export async function listAttempts(): Promise<Attempt[]> {
-  return Array.from(attempts.values());
-}

@@ -9,7 +9,7 @@ This project has a **baseline** checkpoint. The following must continue to work;
 
 ## Reading theater & flip cards
 
-- **Route:** `/reading/theater` shows passage (left) + coach flip cards (right).
+- **Route:** `/practice/theater` shows passage (left) + coach flip cards (right). `/reading/theater` redirects to it.
 - **Flip card behaviour:** Front shows one text → user clicks → card flips (3D rotateY) → back shows different text. Click again (or OK on back) flips to front. **No mirroring** of text on either side.
 - **Implementation:** CSS `.flip-card`, `.flip-card-inner`, `.flip-card-face`, `.flip-card-back` and `backface-visibility` in `app/globals.css`; `FlipCoachCard` in `modules/reading/PassageOnlyView.tsx`. See the "REQUIRED FLIP CARD BEHAVIOUR" comment in that file.
 - **Cards:** 3 cards; theme-aware (use `bg-surface`, `border-border`) so they adapt to dark mode and stay clearly identifiable as cards.
@@ -22,4 +22,4 @@ This project has a **baseline** checkpoint. The following must continue to work;
 ## When changing code
 
 - Preserve: front text → click → flip → back text; no mirrored content; dark mode toggle and theme-aware surfaces/borders.
-- Test: flip cards on `/reading/theater` and light/dark toggle after your changes.
+- Test: flip cards on `/practice/theater` and light/dark toggle after your changes.

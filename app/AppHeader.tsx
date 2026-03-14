@@ -12,7 +12,7 @@ export default function AppHeader() {
 
   const isAttemptRoute = pathname?.startsWith("/attempt/");
   const isResultPage = pathname?.includes("/result");
-  const isReadingTheater = pathname === "/reading/theater";
+  const isReadingTheater = pathname === "/practice/theater";
   const isPracticeRoute = pathname?.startsWith("/practice");
   const showExitQuiz = Boolean(isAttemptRoute && !isResultPage);
 

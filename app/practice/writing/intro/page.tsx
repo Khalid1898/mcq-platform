@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { clearJourneySkills, getJourneySkills } from "@/lib/journey-storage";
 import { useIeltsState } from "@/lib/use-ielts-state";
 import { DUMMY_TASK2_PROMPTS, WritingPrompt } from "@/modules/writing/prompts";
 import { Task2IntroStudio } from "@/modules/writing/Task2IntroStudio";
@@ -18,11 +21,17 @@ export default function WritingIntroPage() {
   const router = useRouter();
   const { completeTask } = useIeltsState();
 
+  const [showPrevious, setShowPrevious] = useState(false);
   const [selectedPromptId, setSelectedPromptId] = useState<string>(
     DUMMY_TASK2_PROMPTS[0]?.id ?? "task2-001"
   );
   const [hasCompletedIntro, setHasCompletedIntro] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const journey = getJourneySkills();
+    setShowPrevious(journey?.includes("reading") ?? false);
+  }, []);
 
   const selectedPrompt: WritingPrompt =
     DUMMY_TASK2_PROMPTS.find((p) => p.id === selectedPromptId) ??
@@ -46,6 +55,7 @@ export default function WritingIntroPage() {
       },
     });
 
+    clearJourneySkills();
     router.push("/result");
   };
 
@@ -99,7 +109,17 @@ export default function WritingIntroPage() {
         onIntroComplete={() => handleIntroComplete()}
       />
 
-      <div className="flex justify-end border-t border-border pt-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
+        <div>
+          {showPrevious && (
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/practice/theater" className="inline-flex items-center gap-1.5">
+                <ChevronLeft className="h-4 w-4" aria-hidden />
+                Previous
+              </Link>
+            </Button>
+          )}
+        </div>
         <Button
           size="lg"
           onClick={handleFinishSession}

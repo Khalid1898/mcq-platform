@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { getJourneySkills } from "@/lib/journey-storage";
 import { useIeltsState } from "@/lib/use-ielts-state";
 
 type Blank = {
@@ -75,7 +76,12 @@ export default function GapFillPage() {
       },
     });
 
-    router.push("/result");
+    const journey = getJourneySkills();
+    if (journey?.includes("writing")) {
+      router.push("/practice/writing/intro");
+    } else {
+      router.push("/result");
+    }
   };
 
   return (
