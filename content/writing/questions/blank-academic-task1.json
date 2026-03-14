@@ -1,0 +1,15 @@
+{
+  "id": "your-unique-id",
+  "examType": "academic",
+  "taskType": "task1",
+  "subtype": "line_graph",
+  "title": "",
+  "prompt": "",
+  "instructions": "You should spend about 20 minutes on this task.",
+  "summariseInstruction": "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+  "minimumWords": 150,
+  "suggestedMinutes": 20,
+  "difficulty": "medium",
+  "topic": "",
+  "tags": []
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, Home, Moon, RotateCw, Sun, X } from "lucide-react";
@@ -17,7 +17,9 @@ import {
   MATCHING_CORRECTION_CONFIG,
   type MatchingCorrectionStep,
 } from "@/content/reading/matching-correction-config";
+import type { MilestoneStep } from "@/components/milestone-progress";
 import { getJourneySkills } from "@/lib/journey-storage";
+import { usePracticeProgress } from "@/app/PracticeProgressContext";
 
 type Props = {
   passage: ReadingPassage;
@@ -60,12 +62,64 @@ const COACH_CARDS: CoachCard[] = [
   },
 ];
 
+/** Build practice progress steps from passage sections and current answers. No step is completed until all questions in that section are answered. */
+function buildPracticeStepsFromPassage(
+  passage: ReadingPassage,
+  answers: Record<string, string>
+): MilestoneStep[] {
+  const sections = passage.questionSections ?? [];
+  if (sections.length === 0) return [];
+
+  return sections.map((sec, index) => {
+    const total = sec.endOrder - sec.startOrder + 1;
+    const questionsInSection = passage.questions.filter(
+      (q) => q.order >= sec.startOrder && q.order <= sec.endOrder
+    );
+    const answeredCount = questionsInSection.filter(
+      (q) => typeof answers[q.id] === "string" && answers[q.id].trim() !== ""
+    ).length;
+    // Only green when user has actually answered every question in this section (never when 0 answered).
+    const isCompleted =
+      total > 0 && answeredCount > 0 && answeredCount === total;
+    const isFirstIncomplete =
+      !isCompleted &&
+      (index === 0 ||
+        sections.slice(0, index).every((s) => {
+          const sTotal = s.endOrder - s.startOrder + 1;
+          const sAnswered = passage.questions.filter(
+            (q) =>
+              q.order >= s.startOrder &&
+              q.order <= s.endOrder &&
+              typeof answers[q.id] === "string" &&
+              answers[q.id].trim() !== ""
+          ).length;
+          return sTotal > 0 && sAnswered > 0 && sAnswered === sTotal;
+        }));
+    const status = isCompleted
+      ? "completed"
+      : isFirstIncomplete
+        ? "active"
+        : "upcoming";
+
+    return {
+      skill: sec.title,
+      subtype: sec.subtitle,
+      meta: `${answeredCount} of ${total} complete`,
+      status,
+      // Grey until this subtask is fully completed (no green/primary for "in progress").
+      hasSubTaskProgress: status === "completed" ? undefined : false,
+    };
+  });
+}
+
 export function PassageOnlyView({ passage, correctAnswers }: Props) {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { setSteps } = usePracticeProgress();
   const [themeReady, setThemeReady] = useState(false);
   const [viewReady, setViewReady] = useState(false);
   const [fontScale, setFontScale] = useState(1);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [highlightedParagraphId, setHighlightedParagraphId] = useState<
     string | null
   >(null);
@@ -101,6 +155,15 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
     const journey = getJourneySkills();
     setShowContinueFooter((journey?.length ?? 0) > 0);
   }, []);
+
+  const practiceSteps = useMemo(
+    () => buildPracticeStepsFromPassage(passage, answers),
+    [passage, answers]
+  );
+
+  useEffect(() => {
+    if (practiceSteps.length > 0) setSteps(practiceSteps);
+  }, [practiceSteps, setSteps]);
 
   const [translationState, setTranslationState] = useState<{
     questionOrder: number | null;
@@ -193,7 +256,7 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
 
   return (
     <div className="w-full px-2 py-4 sm:px-4 md:px-6 lg:px-8">
-      <div className="mb-3 flex items-center justify-between gap-2 text-xs text-muted">
+      <div className="mb-3 grid grid-cols-3 items-center gap-2 text-xs text-muted">
         <div className="flex items-center gap-3">
           <Link
             href="/"
@@ -203,38 +266,99 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
             <span>Home</span>
           </Link>
           <div className="flex items-center gap-1.5">
-          <span className="hidden sm:inline text-[11px]">Text size</span>
-          <div className="inline-flex items-center gap-0.5 rounded-xl border border-border bg-surface px-1 py-0.5 shadow-sm">
-            <button
-              type="button"
-              onClick={() => updateFontScale(fontScale - 0.1)}
-              className="inline-flex h-6 w-6 items-center justify-center rounded-lg text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-1 focus:ring-ring"
-              aria-label="Decrease text size"
-            >
-              A-
-            </button>
-            <div className="h-4 w-px bg-border/70" />
-            <button
-              type="button"
-              onClick={() => updateFontScale(1)}
-              className="inline-flex h-6 w-8 items-center justify-center rounded-lg text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-1 focus:ring-ring"
-              aria-label="Reset text size"
-            >
-              A
-            </button>
-            <div className="h-4 w-px bg-border/70" />
-            <button
-              type="button"
-              onClick={() => updateFontScale(fontScale + 0.1)}
-              className="inline-flex h-6 w-6 items-center justify-center rounded-lg text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-1 focus:ring-ring"
-              aria-label="Increase text size"
-            >
-              A+
-            </button>
-          </div>
+            <span className="hidden sm:inline text-[11px]">Text size</span>
+            <div className="inline-flex items-center gap-0.5 rounded-xl border border-border bg-surface px-1 py-0.5 shadow-sm">
+              <button
+                type="button"
+                onClick={() => updateFontScale(fontScale - 0.1)}
+                className="inline-flex h-6 w-6 items-center justify-center rounded-lg text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-1 focus:ring-ring"
+                aria-label="Decrease text size"
+              >
+                A-
+              </button>
+              <div className="h-4 w-px bg-border/70" />
+              <button
+                type="button"
+                onClick={() => updateFontScale(1)}
+                className="inline-flex h-6 w-8 items-center justify-center rounded-lg text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-1 focus:ring-ring"
+                aria-label="Reset text size"
+              >
+                A
+              </button>
+              <div className="h-4 w-px bg-border/70" />
+              <button
+                type="button"
+                onClick={() => updateFontScale(fontScale + 0.1)}
+                className="inline-flex h-6 w-6 items-center justify-center rounded-lg text-[11px] font-medium text-text hover:bg-surface-2 focus:outline-none focus:ring-1 focus:ring-ring"
+                aria-label="Increase text size"
+              >
+                A+
+              </button>
+            </div>
           </div>
         </div>
-        <div className="flex items-center justify-end gap-2 text-xs text-muted">
+
+        <div className="flex min-w-0 justify-center">
+          {practiceSteps.length > 0 && (
+            <nav
+              aria-label="Practice session progress"
+              className="flex w-full max-w-[420px] items-start justify-center overflow-x-auto pb-0.5"
+            >
+              <div className="flex items-stretch gap-0">
+                {practiceSteps.map((step, index) => (
+                  <div
+                    key={`${step.skill}-${step.subtype}-${index}`}
+                    className="flex min-w-0 flex-1 basis-0 flex-col items-center"
+                  >
+                    <div className="flex w-full items-center">
+                      <div
+                        className={`
+                          flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-[10px] transition-all
+                          ${step.status === "completed" ? "border-success bg-success text-primary-foreground" : ""}
+                          ${step.status === "active" && step.hasSubTaskProgress ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/40 ring-offset-1 ring-offset-bg" : ""}
+                          ${step.status === "active" && !step.hasSubTaskProgress ? "border-border bg-surface text-muted" : ""}
+                          ${step.status === "upcoming" ? "border-border bg-surface text-muted" : ""}
+                        `}
+                      >
+                        {step.status === "completed" ? (
+                          <Check className="h-3 w-3" strokeWidth={2.5} />
+                        ) : (
+                          <span className="font-medium">{index + 1}</span>
+                        )}
+                      </div>
+                      {index < practiceSteps.length - 1 && (
+                        <div
+                          className={`mx-0.5 h-0.5 min-w-[8px] flex-1 max-w-[20px] rounded-full ${
+                            step.status === "completed" ? "bg-success/70" : "bg-border"
+                          }`}
+                          aria-hidden
+                        />
+                      )}
+                    </div>
+                    <div className="mt-1.5 flex min-w-0 flex-col items-center text-center">
+                      <span
+                        className={`
+                          block text-[11px] font-semibold leading-tight
+                          ${step.status === "active" && step.hasSubTaskProgress ? "text-primary" : ""}
+                          ${step.status === "active" && !step.hasSubTaskProgress ? "text-muted" : ""}
+                          ${step.status === "upcoming" ? "text-muted" : ""}
+                          ${step.status === "completed" ? "text-text" : ""}
+                        `}
+                      >
+                        {step.skill} / {step.subtype}
+                      </span>
+                      <span className="mt-0.5 block text-[10px] leading-tight text-muted">
+                        {step.meta}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </nav>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-2 text-xs text-muted">
           {themeReady && (
             <button
               type="button"
@@ -509,6 +633,10 @@ export function PassageOnlyView({ passage, correctAnswers }: Props) {
                     onViewRelatedParagraphToggle={handleViewRelatedParagraphToggle}
                     isViewRelatedActive={isViewRelatedActiveForHint}
                     onRetry={handleRetry}
+                    answers={answers}
+                    onAnswerChange={(questionId, value) =>
+                      setAnswers((prev) => ({ ...prev, [questionId]: value }))
+                    }
                   />
                 </div>
               );
@@ -588,6 +716,9 @@ type FlipCoachCardProps = {
   isViewRelatedActive?: (paragraphHint: number) => boolean;
   /** Called when user clicks Retry; parent can clear view-related/translation state. */
   onRetry?: () => void;
+  /** When set, parent owns answer state for progress tracking. */
+  answers?: Record<string, string>;
+  onAnswerChange?: (questionId: string, value: string) => void;
 };
 
 /** Highlights a phrase inside a text string for evidence display. */
@@ -668,10 +799,23 @@ function FlipCoachCard({
   onViewRelatedParagraphToggle,
   isViewRelatedActive,
   onRetry,
+  answers: answersProp,
+  onAnswerChange,
 }: FlipCoachCardProps) {
   const [flipped, setFlipped] = useState(false);
   const [showBackFace, setShowBackFace] = useState(false);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [localAnswers, setLocalAnswers] = useState<Record<string, string>>({});
+  const answers = answersProp ?? localAnswers;
+  const setAnswer = useCallback(
+    (questionId: string, value: string) => {
+      if (onAnswerChange) {
+        onAnswerChange(questionId, value);
+      } else {
+        setLocalAnswers((prev) => ({ ...prev, [questionId]: value }));
+      }
+    },
+    [onAnswerChange]
+  );
   const [diagnoseQuestionOrder, setDiagnoseQuestionOrder] = useState<
     number | null
   >(null);
@@ -715,10 +859,6 @@ function FlipCoachCard({
   const showMatchingDiagnosisBack =
     matchingDiagnoseQuestionOrder != null &&
     (questions?.some((q) => q.order === matchingDiagnoseQuestionOrder) ?? false);
-
-  const setAnswer = (questionId: string, value: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
-  };
 
   const handleAnswerSelect = (q: ReadingQuestion, value: string) => {
     setAnswer(q.id, value);

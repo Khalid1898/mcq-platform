@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAttemptProgress } from "@/app/AttemptProgressContext";
 
 type Question = {
   id: string;
@@ -40,6 +41,7 @@ export default function AttemptClient({
   initialAttempt: Attempt;
 }) {
   const router = useRouter();
+  const { setProgress, clearProgress } = useAttemptProgress();
   const [idx, setIdx] = useState(0);
 
   const [answers, setAnswers] = useState<Map<string, number>>(() => {
@@ -70,6 +72,11 @@ export default function AttemptClient({
   const answeredCount = answers.size;
   const totalCount = questions.length;
   const allAnswered = answeredCount === totalCount;
+
+  useEffect(() => {
+    setProgress(idx + 1, totalCount);
+    return () => clearProgress();
+  }, [idx, totalCount, setProgress, clearProgress]);
 
   const unansweredIndexes = useMemo(() => {
     const list: number[] = [];
@@ -195,15 +202,8 @@ export default function AttemptClient({
 
   return (
     <div className="space-y-8 py-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="text-[15px] font-medium text-text">
-          Question {idx + 1} / {totalCount}
-          <span className="ml-2 text-muted">
-            (Answered {answeredCount} / {totalCount})
-          </span>
-        </div>
-        <div className="flex gap-2">
-          <button
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <button
             type="button"
             onClick={goToNextUnanswered}
             disabled={saving || unansweredIndexes.length === 0}
@@ -219,7 +219,6 @@ export default function AttemptClient({
           >
             Review Skipped
           </button>
-        </div>
       </div>
 
       <div className="rounded-xl border border-border bg-surface p-4">

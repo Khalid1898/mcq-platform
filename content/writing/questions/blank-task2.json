@@ -1,0 +1,14 @@
+{
+  "id": "your-unique-id",
+  "examType": "academic",
+  "taskType": "task2",
+  "subtype": "opinion",
+  "title": "",
+  "prompt": "",
+  "instructions": "You should spend about 40 minutes on this task.",
+  "minimumWords": 250,
+  "suggestedMinutes": 40,
+  "difficulty": "medium",
+  "topic": "",
+  "tags": []
+}

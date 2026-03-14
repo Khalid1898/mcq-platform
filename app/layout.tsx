@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppHeader from "./AppHeader";
+import { AttemptProgressProvider } from "./AttemptProgressContext";
+import { PracticeProgressProvider } from "./PracticeProgressContext";
 import { ThemeProvider } from "./ThemeProvider";
 
 const geistSans = Geist({
@@ -55,11 +57,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-bg text-text`}
       >
         <ThemeProvider>
-          <AppHeader />
-
-          <main className="w-full px-2 py-6 sm:px-4 md:px-6 lg:px-8">
-            {children}
-          </main>
+          <AttemptProgressProvider>
+            <PracticeProgressProvider>
+              <AppHeader />
+              <main className="w-full px-2 py-6 sm:px-4 md:px-6 lg:px-8">
+                {children}
+              </main>
+            </PracticeProgressProvider>
+          </AttemptProgressProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,0 +1,15 @@
+{
+  "id": "your-unique-id",
+  "examType": "general_training",
+  "taskType": "task1",
+  "subtype": "formal_letter",
+  "title": "",
+  "prompt": "",
+  "instructions": "You should spend about 20 minutes on this task.",
+  "minimumWords": 150,
+  "suggestedMinutes": 20,
+  "difficulty": "easy",
+  "topic": "",
+  "tags": [],
+  "bulletPoints": []
+}
